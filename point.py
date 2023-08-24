@@ -1,6 +1,8 @@
 import math
 import random
 
+from constants import CANVAS_WIDTH, CANVAS_HEIGHT, CANVAS_MARGIN
+
 
 class Point:
     def __init__(self, x, y):
@@ -14,7 +16,8 @@ class Point:
 
     @staticmethod
     def random():
-        return Point(random.randint(10, 790), random.randint(10, 790))
+        return Point(random.randint(CANVAS_MARGIN, CANVAS_WIDTH - CANVAS_MARGIN),
+                     random.randint(CANVAS_MARGIN, CANVAS_HEIGHT - CANVAS_MARGIN))
 
     def __str__(self):
         return f"({self.x}, {self.y})"
