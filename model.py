@@ -6,6 +6,9 @@ from point import Point
 
 
 class Model:
+    DEFAULT_DELIVERY_COUNT = 5
+    DEFAULT_DRONE_COUNT = 3
+
     delivery_requests = []
     drones_tasks = []
     station = Point(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)

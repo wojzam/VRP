@@ -3,10 +3,12 @@ from tkinter import *
 from constants import *
 from model import Model
 
-COLORS = ["red", "green", "cyan", "orange", "green1", "orchid"]
-
 
 class GUI:
+    POINT_RADIUS = 5
+    STATION_RADIUS = 10
+    ARROW_SHAPE = (12, 14, 6)
+    COLORS = ["red", "green", "cyan", "orange", "green1", "orchid"]
 
     def __init__(self, model: Model):
         self.model = model
@@ -38,10 +40,10 @@ class GUI:
         self.draw_all_drones_paths()
 
     def draw_station(self):
-        self.canvas.create_oval(self.model.station.x - STATION_RADIUS,
-                                self.model.station.y - STATION_RADIUS,
-                                self.model.station.x + STATION_RADIUS,
-                                self.model.station.y + STATION_RADIUS,
+        self.canvas.create_oval(self.model.station.x - self.STATION_RADIUS,
+                                self.model.station.y - self.STATION_RADIUS,
+                                self.model.station.x + self.STATION_RADIUS,
+                                self.model.station.y + self.STATION_RADIUS,
                                 fill="grey")
 
     def draw_delivery_points(self):
@@ -51,20 +53,21 @@ class GUI:
             self.draw_path(delivery.start, delivery.end)
 
     def draw_point(self, point, color="white", text=""):
-        self.canvas.create_oval(point.x - POINT_RADIUS,
-                                point.y - POINT_RADIUS,
-                                point.x + POINT_RADIUS,
-                                point.y + POINT_RADIUS,
+        self.canvas.create_oval(point.x - self.POINT_RADIUS,
+                                point.y - self.POINT_RADIUS,
+                                point.x + self.POINT_RADIUS,
+                                point.y + self.POINT_RADIUS,
                                 fill=color)
-        self.canvas.create_text(point.x, point.y - 2 * POINT_RADIUS, text=text)
+        self.canvas.create_text(point.x, point.y - 2 * self.POINT_RADIUS, text=text)
 
     def draw_path(self, start, end, color="grey80"):
         if self.show_paths.get():
-            self.canvas.create_line(start.x, start.y, end.x, end.y, fill=color, arrow='last', arrowshape=ARROW_SHAPE)
+            self.canvas.create_line(start.x, start.y, end.x, end.y, fill=color, arrow='last',
+                                    arrowshape=self.ARROW_SHAPE)
 
     def draw_all_drones_paths(self):
         for index, drone in enumerate(self.model.drones_tasks):
-            self.draw_drone_paths(drone, COLORS[index % len(COLORS)])
+            self.draw_drone_paths(drone, self.COLORS[index % len(self.COLORS)])
 
     def draw_drone_paths(self, path, color):
         if path:

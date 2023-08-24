@@ -1,7 +1,7 @@
 import math
 import random
 
-from constants import CANVAS_WIDTH, CANVAS_HEIGHT, CANVAS_MARGIN
+from constants import *
 
 
 class Point:
