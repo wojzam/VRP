@@ -27,20 +27,42 @@ class Model:
             for j, delivery2 in enumerate(self.delivery_requests):
                 self.distance_matrix[i + 1, j + 1] = delivery1.end.distance(delivery2.start) + delivery2.distance
 
-    def generate_drones_tasks(self, count=DEFAULT_DRONE_COUNT):
+    def generate_drones_tasks(self, count=DEFAULT_DRONE_COUNT, generations=1000):
+        best_score = None
+        best_distance = None
+        best_time = None
+        best_solution = None
+
+        for _ in range(generations):
+            solution = self.random_solution(count)
+            distances = [self.calculate_total_distance(np.array(drone)) for drone in solution]
+            total_distance = sum(distances)
+            time = max(distances)
+            score = total_distance + 2 * time
+
+            if best_score is None or best_score > score:
+                best_score = score
+                best_distance = total_distance
+                best_time = time
+                best_solution = solution
+
+        print(best_solution)
+        print(best_time)
+        print(best_distance)
+
+        self.drones_tasks = [[x - 1 for i, x in enumerate(d) if i] for d in best_solution]
+        print(self.drones_tasks)
+
+    def random_solution(self, count=DEFAULT_DRONE_COUNT):
         delivery_indexes = np.arange(1, len(self.delivery_requests) + 1)
         np.random.shuffle(delivery_indexes)
         random_drones = np.random.randint(count, size=(len(delivery_indexes)))
         solution = [[0] for _ in range(count)]
 
-        for i, drone in enumerate(random_drones):
-            solution[drone].append(delivery_indexes[i])
+        for drone, delivery_idx in zip(random_drones, delivery_indexes):
+            solution[drone].append(delivery_idx)
 
-        distances = [self.calculate_total_distance(np.array(drone_paths)) for drone_paths in solution]
-        print(sum(distances), distances)
-
-        self.drones_tasks = [[x - 1 for i, x in enumerate(d) if i] for d in solution]
-        print(self.drones_tasks)
+        return solution
 
     def calculate_total_distance(self, paths):
         return np.sum(self.distance_matrix[paths[:-1], paths[1:]])
