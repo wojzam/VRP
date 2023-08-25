@@ -6,28 +6,29 @@ from point import Point
 
 
 class Model:
-    DEFAULT_DELIVERY_COUNT = 5
+    DEFAULT_DELIVERY_COUNT = 8
     DEFAULT_DRONE_COUNT = 3
 
     delivery_requests = []
-    drones_tasks = []
+    targets = []
+    paths = []
     distance_matrix = np.empty((0, 0))
     station = Point(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
 
-    def generate_delivery_requests(self, count=DEFAULT_DELIVERY_COUNT):
+    def generate_targets(self, count=DEFAULT_DELIVERY_COUNT):
         self.delivery_requests = [DeliveryRequest.random() for _ in range(count)]
+        self.targets = self.delivery_requests[:]
+        # Station is added as DeliveryRequest with start and end at the same point
+        self.targets.insert(0, DeliveryRequest(self.station.x, self.station.y, self.station.x, self.station.y))
         self.calculate_distance_matrix()
 
     def calculate_distance_matrix(self):
-        n = len(self.delivery_requests) + 1
-        self.distance_matrix = np.zeros((n, n))
-        for i, delivery1 in enumerate(self.delivery_requests):
-            self.distance_matrix[0, i + 1] = self.station.distance(delivery1.start) + delivery1.distance
-            self.distance_matrix[i + 1, 0] = delivery1.end.distance(self.station)
-            for j, delivery2 in enumerate(self.delivery_requests):
-                self.distance_matrix[i + 1, j + 1] = delivery1.end.distance(delivery2.start) + delivery2.distance
+        self.distance_matrix = np.zeros((len(self.targets), len(self.targets)))
+        for i, delivery1 in enumerate(self.targets):
+            for j, delivery2 in enumerate(self.targets):
+                self.distance_matrix[i, j] = delivery1.end.distance(delivery2.start) + delivery2.distance
 
-    def generate_drones_tasks(self, count=DEFAULT_DRONE_COUNT, generations=1000):
+    def generate_paths(self, count=DEFAULT_DRONE_COUNT, generations=10000):
         best_score = None
         best_distance = None
         best_time = None
@@ -50,16 +51,27 @@ class Model:
         print(best_time)
         print(best_distance)
 
-        self.drones_tasks = [[x - 1 for i, x in enumerate(d) if i] for d in best_solution]
-        print(self.drones_tasks)
+        self.calculate_paths_vectors(best_solution)
+
+    def calculate_paths_vectors(self, solution):
+        self.paths = []
+        for path in solution:
+            vectors = []
+            for i in range(1, len(path)):
+                current = self.targets[path[i]]
+                previous = self.targets[path[i - 1]]
+                vectors.append((current.start, current.end))
+                vectors.append((previous.end, current.start))
+
+            self.paths.append(vectors)
 
     def random_solution(self, count=DEFAULT_DRONE_COUNT):
-        delivery_indexes = np.arange(1, len(self.delivery_requests) + 1)
-        np.random.shuffle(delivery_indexes)
-        random_drones = np.random.randint(count, size=(len(delivery_indexes)))
+        targets_indexes = np.arange(1, len(self.targets))
+        np.random.shuffle(targets_indexes)
+        random_drones = np.random.randint(count, size=(len(targets_indexes)))
         solution = [[0] for _ in range(count)]
 
-        for drone, delivery_idx in zip(random_drones, delivery_indexes):
+        for drone, delivery_idx in zip(random_drones, targets_indexes):
             solution[drone].append(delivery_idx)
 
         return solution
