@@ -15,6 +15,9 @@ class Model:
     distance_matrix = np.empty((0, 0))
     station = Point(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
 
+    best_distance = None
+    best_time = None
+
     def generate_targets(self, count=DEFAULT_DELIVERY_COUNT):
         self.delivery_requests = [DeliveryRequest.random() for _ in range(count)]
         self.targets = self.delivery_requests[:]
@@ -28,10 +31,10 @@ class Model:
             for j, delivery2 in enumerate(self.targets):
                 self.distance_matrix[i, j] = delivery1.end.distance(delivery2.start) + delivery2.distance
 
-    def generate_paths(self, count=DEFAULT_DRONE_COUNT, generations=10000):
+    def generate_paths(self, count=DEFAULT_DRONE_COUNT, generations=1000):
         best_score = None
-        best_distance = None
-        best_time = None
+        self.best_distance = None
+        self.best_time = None
         best_solution = None
 
         for _ in range(generations):
@@ -43,13 +46,13 @@ class Model:
 
             if best_score is None or best_score > score:
                 best_score = score
-                best_distance = total_distance
-                best_time = time
+                self.best_distance = total_distance
+                self.best_time = time
                 best_solution = solution
 
         print(best_solution)
-        print(best_time)
-        print(best_distance)
+        print(self.best_time)
+        print(self.best_distance)
 
         self.calculate_paths_vectors(best_solution)
 
