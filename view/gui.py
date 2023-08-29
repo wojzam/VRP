@@ -1,8 +1,8 @@
 from tkinter import *
 
-from int_input import IntInput
 from model import Model
-from zoom_pan_canvas import ZoomPanCanvas
+from view.int_input import IntInput
+from view.zoom_pan_canvas import ZoomPanCanvas
 
 
 class GUI:

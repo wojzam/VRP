@@ -1,5 +1,5 @@
-from gui import GUI
 from model import Model
+from view.gui import GUI
 
 if __name__ == "__main__":
     model = Model()
