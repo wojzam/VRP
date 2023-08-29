@@ -1,8 +1,8 @@
 from tkinter import *
 
-from constants import *
 from int_input import IntInput
 from model import Model
+from zoom_pan_canvas import ZoomPanCanvas
 
 
 class GUI:
@@ -15,7 +15,7 @@ class GUI:
         self.model = model
         tk = Tk()
         tk.title("Test")
-        self.canvas = Canvas(tk, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
+        self.canvas = ZoomPanCanvas(tk, bg="white")
         self.canvas.pack(side="left", expand=True, fill="both")
         self.show_paths = BooleanVar(value=True)
 
@@ -32,8 +32,9 @@ class GUI:
             self.drones_count_input,
             Checkbutton(control_panel, text="Show paths", variable=self.show_paths,
                         command=self.update_canvas),
-            Button(control_panel, text="Refresh paths", command=self.refresh_paths),
-            Button(control_panel, text="Restart", command=self.restart)
+            Button(control_panel, text="Refresh paths", command=self.refresh_paths, width=10),
+            Button(control_panel, text="Restart", command=self.restart, width=10),
+            Button(control_panel, text="Recenter", command=self.canvas.recenter, width=10)
         ]:
             widget.pack(pady=10)
 
