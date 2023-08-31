@@ -32,19 +32,21 @@ class Model:
                 self.distance_matrix[i, j] = delivery1.end.distance(delivery2.start) + delivery2.distance
 
     def generate_paths(self, count=DEFAULT_DRONE_COUNT, generations=1000):
-        best_score = None
+        best_score = float('inf')
         self.best_distance = None
         self.best_time = None
         best_solution = None
 
-        for _ in range(generations):
-            solution = self.random_solution(count)
+        pop1, pop2 = Model.generate_population(len(self.delivery_requests), count, generations)
+
+        for row1, row2 in zip(pop1, pop2):
+            solution = self.decode_solution(row1, row2)
             distances = [self.calculate_total_distance(np.array(drone)) for drone in solution]
             total_distance = sum(distances)
             time = max(distances)
             score = total_distance + 2 * time
 
-            if best_score is None or best_score > score:
+            if best_score > score:
                 best_score = score
                 self.best_distance = total_distance
                 self.best_time = time
@@ -68,16 +70,25 @@ class Model:
 
             self.paths.append(vectors)
 
-    def random_solution(self, count=DEFAULT_DRONE_COUNT):
-        targets_indexes = np.arange(1, len(self.targets))
-        np.random.shuffle(targets_indexes)
-        random_drones = np.random.randint(count, size=(len(targets_indexes)))
-        solution = [[0] for _ in range(count)]
-
-        for drone, delivery_idx in zip(random_drones, targets_indexes):
-            solution[drone].append(delivery_idx)
-
-        return solution
-
     def calculate_total_distance(self, paths):
         return np.sum(self.distance_matrix[paths[:-1], paths[1:]])
+
+    @staticmethod
+    def generate_population(requests_count, drones_count, size):
+        pop1 = np.array([np.random.permutation(requests_count) + 1 for _ in range(size)])
+        pop2 = np.array([Model.create_array_with_sum(requests_count, drones_count) for _ in range(size)])
+        return pop1, pop2
+
+    @staticmethod
+    def decode_solution(row1, row2):
+        solution = []
+        index = 0
+        for count in row2:
+            paths = [0] + [row1[index + i] for i in range(count)]
+            solution.append(paths)
+            index += count
+        return solution
+
+    @staticmethod
+    def create_array_with_sum(total_sum, size):
+        return np.bincount(np.random.randint(size, size=total_sum), minlength=size)
