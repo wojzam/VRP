@@ -50,6 +50,7 @@ class GUI:
         self.update_canvas()
 
     def update_canvas(self):
+        self.canvas.recenter()
         self.canvas.delete("all")
         self.draw_paths()
         self.draw_station()
@@ -71,8 +72,8 @@ class GUI:
 
     def draw_delivery_points(self):
         for index, delivery in enumerate(self.model.delivery_requests):
-            self.draw_point(delivery.start, self.POINT_RADIUS, "white", index)
-            self.draw_point(delivery.end, self.POINT_RADIUS, "black", index)
+            self.draw_point(delivery.start, self.POINT_RADIUS, "white", index + 1)
+            self.draw_point(delivery.end, self.POINT_RADIUS, "black", index + 1)
 
     def draw_point(self, point, radius, color="white", text=""):
         self.canvas.create_oval(point.x - radius, point.y - radius, point.x + radius, point.y + radius, fill=color)
