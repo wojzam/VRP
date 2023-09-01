@@ -1,15 +1,16 @@
-import numpy as np
+import matplotlib.pyplot as plt
 
 from constants import *
 from delivery_request import DeliveryRequest
 from genetic_algorithm import *
 from point import Point
-import matplotlib.pyplot as plt
 
 
 class Model:
-    DEFAULT_DELIVERY_COUNT = 8
-    DEFAULT_DRONE_COUNT = 3
+    DEFAULT_DELIVERIES_COUNT = 6
+    DEFAULT_DRONES_COUNT = 3
+    DEFAULT_GENERATIONS = 100
+    DEFAULT_POP_SIZE = 60
 
     delivery_requests = []
     targets = []
@@ -17,15 +18,21 @@ class Model:
     distance_matrix = np.empty((0, 0))
     station = Point(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
 
-    best_distance = None
-    best_time = None
+    best_distance = 0
+    best_time = 0
 
-    def generate_targets(self, count=DEFAULT_DELIVERY_COUNT):
+    def clear_solution(self):
+        self.best_distance = 0
+        self.best_time = 0
+        self.paths = []
+
+    def generate_targets(self, count=DEFAULT_DELIVERIES_COUNT):
         self.delivery_requests = [DeliveryRequest.random() for _ in range(count)]
         self.targets = self.delivery_requests[:]
         # Station is added as DeliveryRequest with start and end at the same point
         self.targets.insert(0, DeliveryRequest(self.station.x, self.station.y, self.station.x, self.station.y))
         self.calculate_distance_matrix()
+        self.clear_solution()
 
     def calculate_distance_matrix(self):
         self.distance_matrix = np.zeros((len(self.targets), len(self.targets)))
@@ -33,7 +40,7 @@ class Model:
             for j, delivery2 in enumerate(self.targets):
                 self.distance_matrix[i, j] = delivery1.end.distance(delivery2.start) + delivery2.distance
 
-    def generate_paths(self, count=DEFAULT_DRONE_COUNT, size=60, generations=100):
+    def generate_paths(self, count=DEFAULT_DRONES_COUNT, size=DEFAULT_POP_SIZE, generations=DEFAULT_GENERATIONS):
         pop1, pop2 = generate_population(len(self.delivery_requests), count, size)
         result, solutions = evaluate(pop1, pop2, self.calculate_total_distance)
         scores = result[:, 0]
@@ -50,8 +57,8 @@ class Model:
         for _ in range(generations):
             pop1, pop2 = selection(pop1, pop2, scores)
             pop1 = crossover(pop1, 0.7)
-            pop1 = mutation(pop1, swap_mutation_logic, 0.1)
-            pop2 = mutation(pop2, add_subtract_mutation_logic, 0.1)
+            pop1 = mutation(pop1, swap_mutation_logic, 0.05)
+            pop2 = mutation(pop2, add_subtract_mutation_logic, 0.05)
 
             result, solutions = evaluate(pop1, pop2, self.calculate_total_distance)
             scores = result[:, 0]

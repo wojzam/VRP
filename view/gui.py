@@ -22,31 +22,38 @@ class GUI:
         control_panel = Frame(tk)
         control_panel.pack(side="right", padx=10, pady=10, fill="y")
         self.result_info = Label(control_panel)
-        self.delivery_count_input = IntInput(control_panel, "Delivery count:", 1, 999, 5)
-        self.drones_count_input = IntInput(control_panel, "Drones count:", 1, 99, 3)
-        self.test = IntInput(control_panel, "Test:")
+        self.delivery_count_input = IntInput(control_panel, "Deliveries:", 0, 999, Model.DEFAULT_DELIVERIES_COUNT)
+        self.drones_count_input = IntInput(control_panel, "Drones:", 0, 99, Model.DEFAULT_DRONES_COUNT)
+        self.size_input = IntInput(control_panel, "Population:", 0, 999, Model.DEFAULT_POP_SIZE)
+        self.generations_input = IntInput(control_panel, "Generations:", 0, 999, Model.DEFAULT_GENERATIONS)
 
         for widget in [
-            self.result_info,
             self.delivery_count_input,
+            Button(control_panel, text="Generate", command=self.generate_targets, width=10),
             self.drones_count_input,
-            Checkbutton(control_panel, text="Show paths", variable=self.show_paths,
-                        command=self.update_canvas),
-            Button(control_panel, text="Refresh paths", command=self.refresh_paths, width=10),
-            Button(control_panel, text="Restart", command=self.restart, width=10),
+            self.size_input,
+            self.generations_input,
+            Button(control_panel, text="Run", command=self.generate_paths, width=10),
+            self.result_info,
+            Checkbutton(control_panel, text="Show paths", variable=self.show_paths, command=self.update_canvas),
             Button(control_panel, text="Recenter", command=self.canvas.recenter, width=10)
         ]:
             widget.pack(pady=10)
 
-        self.restart()
+        self.generate_targets()
+        self.generate_paths()
         tk.mainloop()
 
-    def restart(self):
+    def generate_targets(self):
         self.model.generate_targets(self.delivery_count_input.get_value())
-        self.refresh_paths()
+        self.update_canvas()
 
-    def refresh_paths(self):
-        self.model.generate_paths(self.drones_count_input.get_value())
+    def generate_paths(self):
+        self.model.generate_paths(
+            self.drones_count_input.get_value(),
+            self.size_input.get_value(),
+            self.generations_input.get_value()
+        )
         self.update_canvas()
 
     def update_canvas(self):

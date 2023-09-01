@@ -33,8 +33,8 @@ class IntInput(tk.Frame):
             return False
 
     def update_entry_width(self):
-        max_value_length = len(str(self.max_value)) if self.max_value else self.MIN_ENTRY_WIDTH
-        min_value_length = len(str(self.min_value)) if self.min_value else self.MIN_ENTRY_WIDTH
+        max_value_length = len(str(self.max_value)) if self.max_value is not None else self.MIN_ENTRY_WIDTH
+        min_value_length = len(str(self.min_value)) if self.min_value is not None else self.MIN_ENTRY_WIDTH
         self.entry.config(width=max(max_value_length, min_value_length))
 
     def get_value(self):
