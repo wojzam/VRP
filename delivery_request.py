@@ -18,5 +18,8 @@ class DeliveryRequest:
             end = Point.random()
         return DeliveryRequest(start.x, start.y, end.x, end.y)
 
+    def get_coordinates(self):
+        return [self.start.x, self.start.y, self.end.x, self.end.y]
+
     def __str__(self):
         return f"Delivery request: Start {self.start}, End {self.end}, Distance {self.distance}"
