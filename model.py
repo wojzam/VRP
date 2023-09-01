@@ -1,7 +1,10 @@
+import numpy as np
+
 from constants import *
 from delivery_request import DeliveryRequest
 from genetic_algorithm import *
 from point import Point
+import matplotlib.pyplot as plt
 
 
 class Model:
@@ -40,6 +43,9 @@ class Model:
         best_score = result[min_index][0]
         self.best_distance = result[min_index][1]
         self.best_time = result[min_index][2]
+        global_best_scores = []
+        best_scores = []
+        mean_scores = []
 
         for _ in range(generations):
             pop1, pop2 = selection(pop1, pop2, scores)
@@ -58,11 +64,16 @@ class Model:
                 self.best_distance = result[min_index][1]
                 self.best_time = result[min_index][2]
 
+            global_best_scores.append(best_score)
+            best_scores.append(temp_best_score)
+            mean_scores.append(np.average(scores))
+
         print(best_solution)
         print(self.best_time)
         print(self.best_distance)
 
         self.calculate_paths_vectors(best_solution)
+        self.show_plot(global_best_scores, best_scores, mean_scores)
 
     def calculate_paths_vectors(self, solution):
         self.paths = []
@@ -78,3 +89,16 @@ class Model:
 
     def calculate_total_distance(self, paths):
         return np.sum(self.distance_matrix[paths[:-1], paths[1:]])
+
+    @staticmethod
+    def show_plot(global_best_scores, best_scores, mean_scores):
+        plt.figure(figsize=(10, 5))
+        plt.plot(range(len(global_best_scores)), global_best_scores, label='Global Best Score', marker='o')
+        plt.plot(range(len(best_scores)), best_scores, label='Best Score', marker='x')
+        plt.plot(range(len(mean_scores)), mean_scores, label='Mean Score', marker='x')
+        plt.xlabel('Generation')
+        plt.ylabel('Score')
+        plt.legend()
+        plt.title('Evolution of Best Scores')
+        plt.grid(True)
+        plt.show()
