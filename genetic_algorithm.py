@@ -39,7 +39,8 @@ def evaluate(pop1, pop2, calculate_total_distance):
 
 
 def selection(pop1, pop2, scores):
-    probabilities = scores / np.sum(scores)
+    inverted_scores = 1 / scores
+    probabilities = inverted_scores / np.sum(inverted_scores)
     selected_indices = np.random.choice(len(pop1), p=probabilities, size=len(pop1))
     return pop1[selected_indices], pop2[selected_indices]
 
