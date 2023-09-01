@@ -1,7 +1,6 @@
-import numpy as np
-
 from constants import *
 from delivery_request import DeliveryRequest
+from genetic_algorithm import *
 from point import Point
 
 
@@ -31,26 +30,33 @@ class Model:
             for j, delivery2 in enumerate(self.targets):
                 self.distance_matrix[i, j] = delivery1.end.distance(delivery2.start) + delivery2.distance
 
-    def generate_paths(self, count=DEFAULT_DRONE_COUNT, generations=1000):
-        best_score = float('inf')
-        self.best_distance = None
-        self.best_time = None
-        best_solution = None
+    def generate_paths(self, count=DEFAULT_DRONE_COUNT, size=60, generations=100):
+        pop1, pop2 = generate_population(len(self.delivery_requests), count, size)
+        result, solutions = evaluate(pop1, pop2, self.calculate_total_distance)
+        scores = result[:, 0]
+        min_index = np.argmin(scores)
 
-        pop1, pop2 = Model.generate_population(len(self.delivery_requests), count, generations)
+        best_solution = solutions[min_index]
+        best_score = result[min_index][0]
+        self.best_distance = result[min_index][1]
+        self.best_time = result[min_index][2]
 
-        for row1, row2 in zip(pop1, pop2):
-            solution = self.decode_solution(row1, row2)
-            distances = [self.calculate_total_distance(np.array(drone)) for drone in solution]
-            total_distance = sum(distances)
-            time = max(distances)
-            score = total_distance + 2 * time
+        for _ in range(generations):
+            pop1, pop2 = selection(pop1, pop2, scores)
+            pop1 = crossover(pop1, 0.7)
+            pop1 = mutation(pop1, swap_mutation_logic, 0.1)
+            pop2 = mutation(pop2, add_subtract_mutation_logic, 0.1)
 
-            if best_score > score:
-                best_score = score
-                self.best_distance = total_distance
-                self.best_time = time
-                best_solution = solution
+            result, solutions = evaluate(pop1, pop2, self.calculate_total_distance)
+            scores = result[:, 0]
+            min_index = np.argmin(scores)
+            temp_best_score = result[min_index][0]
+
+            if best_score > temp_best_score:
+                best_score = temp_best_score
+                best_solution = solutions[min_index]
+                self.best_distance = result[min_index][1]
+                self.best_time = result[min_index][2]
 
         print(best_solution)
         print(self.best_time)
@@ -72,23 +78,3 @@ class Model:
 
     def calculate_total_distance(self, paths):
         return np.sum(self.distance_matrix[paths[:-1], paths[1:]])
-
-    @staticmethod
-    def generate_population(requests_count, drones_count, size):
-        pop1 = np.array([np.random.permutation(requests_count) + 1 for _ in range(size)])
-        pop2 = np.array([Model.create_array_with_sum(requests_count, drones_count) for _ in range(size)])
-        return pop1, pop2
-
-    @staticmethod
-    def decode_solution(row1, row2):
-        solution = []
-        index = 0
-        for count in row2:
-            paths = [0] + [row1[index + i] for i in range(count)]
-            solution.append(paths)
-            index += count
-        return solution
-
-    @staticmethod
-    def create_array_with_sum(total_sum, size):
-        return np.bincount(np.random.randint(size, size=total_sum), minlength=size)
