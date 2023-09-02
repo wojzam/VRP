@@ -64,16 +64,15 @@ def partially_mapped_crossover(parent1, parent2):
     offspring1[cx1:cx2] = parent1[cx1:cx2]
     offspring2[cx1:cx2] = parent2[cx1:cx2]
 
-    idx = cx2
-    idx1, idx2 = 0, 0
-    while idx != cx1:
-        while parent1[idx1] in offspring2:
-            idx1 += 1
-        while parent2[idx2] in offspring1:
-            idx2 += 1
-        offspring1[idx] = parent2[idx2]
-        offspring2[idx] = parent1[idx1]
-        idx = (idx + 1) % size
+    missing1 = parent2[~np.isin(parent2, offspring1[cx1:cx2])]
+    missing2 = parent1[~np.isin(parent1, offspring2[cx1:cx2])]
+
+    idx = 0
+    while cx2 != cx1:
+        offspring1[cx2] = missing1[idx]
+        offspring2[cx2] = missing2[idx]
+        cx2 = (cx2 + 1) % size
+        idx += 1
 
     return offspring1, offspring2
 
