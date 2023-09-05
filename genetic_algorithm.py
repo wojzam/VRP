@@ -84,9 +84,17 @@ def mutation(population, mutation_logic, p=1):
     return new_pop
 
 
-def swap_mutation_logic(individual):
-    idx1, idx2 = np.random.choice(len(individual), size=2, replace=False)
-    individual[idx1], individual[idx2] = individual[idx2], individual[idx1]
+def shuffle_mutation_logic(individual):
+    size = len(individual)
+    if size <= 2:
+        np.random.shuffle(individual)
+        return
+
+    subset_size = np.random.randint(2, size + 1)
+    indices = np.random.choice(size, size=subset_size, replace=False)
+    subset = individual[indices]
+    np.random.shuffle(subset)
+    individual[indices] = subset
 
 
 def add_subtract_mutation_logic(individual):

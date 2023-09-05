@@ -57,7 +57,7 @@ class Model:
         for _ in range(generations):
             pop1, pop2 = selection(pop1, pop2, scores)
             pop1 = crossover(pop1, 0.7)
-            pop1 = mutation(pop1, swap_mutation_logic, 0.05)
+            pop1 = mutation(pop1, shuffle_mutation_logic, 0.1)
             pop2 = mutation(pop2, add_subtract_mutation_logic, 0.05)
 
             result, solutions = evaluate(pop1, pop2, self.calculate_total_distance)
