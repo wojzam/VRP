@@ -1,5 +1,5 @@
 import math
-import random
+import numpy as np
 
 from constants import *
 
@@ -16,8 +16,8 @@ class Point:
 
     @staticmethod
     def random():
-        return Point(random.randint(CANVAS_MARGIN, CANVAS_WIDTH - CANVAS_MARGIN),
-                     random.randint(CANVAS_MARGIN, CANVAS_HEIGHT - CANVAS_MARGIN))
+        return Point(np.random.randint(CANVAS_MARGIN, CANVAS_WIDTH - CANVAS_MARGIN),
+                     np.random.randint(CANVAS_MARGIN, CANVAS_HEIGHT - CANVAS_MARGIN))
 
     def __str__(self):
         return f"({self.x}, {self.y})"
