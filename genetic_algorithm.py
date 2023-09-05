@@ -50,14 +50,13 @@ def crossover(population, p=1):
     num_individuals, num_genes = population.shape
     for i in range(0, num_individuals - 1, 2):
         if np.random.uniform() < p:
-            new_pop[i], new_pop[i + 1] = partially_mapped_crossover(new_pop[i], new_pop[i + 1])
+            new_pop[i], new_pop[i + 1] = order_crossover(new_pop[i], new_pop[i + 1])
     return new_pop
 
 
-def partially_mapped_crossover(parent1, parent2):
+def order_crossover(parent1, parent2):
     size = len(parent1)
     cx1, cx2 = np.sort(np.random.choice(size - 1, 2, replace=False) + 1)
-    idx = size - cx2
 
     missing1 = parent2[~np.isin(parent2, parent1[cx1:cx2])]
     missing2 = parent1[~np.isin(parent1, parent2[cx1:cx2])]
@@ -65,12 +64,12 @@ def partially_mapped_crossover(parent1, parent2):
     offspring1 = np.empty(size, dtype=int)
     offspring2 = np.empty(size, dtype=int)
 
-    offspring1[:cx1] = missing1[idx:]
-    offspring2[:cx1] = missing2[idx:]
+    offspring1[:cx1] = missing1[:cx1]
+    offspring2[:cx1] = missing2[:cx1]
     offspring1[cx1:cx2] = parent1[cx1:cx2]
     offspring2[cx1:cx2] = parent2[cx1:cx2]
-    offspring1[cx2:] = missing1[:idx]
-    offspring2[cx2:] = missing2[:idx]
+    offspring1[cx2:] = missing1[cx1:]
+    offspring2[cx2:] = missing2[cx1:]
 
     return offspring1, offspring2
 
