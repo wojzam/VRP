@@ -56,7 +56,7 @@ def crossover(population, p=1):
 
 def order_crossover(parent1, parent2):
     size = len(parent1)
-    cx1, cx2 = np.sort(np.random.choice(size - 1, 2, replace=False) + 1)
+    cx1, cx2 = np.sort(np.random.choice(size + 1, 2, replace=False))
 
     missing1 = parent2[~np.isin(parent2, parent1[cx1:cx2])]
     missing2 = parent1[~np.isin(parent1, parent2[cx1:cx2])]
@@ -86,11 +86,7 @@ def mutation(population, mutation_logic, p=1):
 
 def shuffle_mutation_logic(individual):
     size = len(individual)
-    if size <= 2:
-        np.random.shuffle(individual)
-        return
-
-    subset_size = np.random.randint(2, size + 1)
+    subset_size = np.random.randint(min(2, size), size + 1)
     indices = np.random.choice(size, size=subset_size, replace=False)
     subset = individual[indices]
     np.random.shuffle(subset)
