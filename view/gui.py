@@ -6,8 +6,8 @@ from view.zoom_pan_canvas import ZoomPanCanvas
 
 
 class GUI:
-    POINT_RADIUS = 5
-    STATION_RADIUS = 10
+    POINT_RADIUS = 4
+    STATION_RADIUS = 8
     ARROW_SHAPE = (16, 18, 5)
     COLORS = ["red", "green", "cyan", "orange", "green1", "orchid"]
 
