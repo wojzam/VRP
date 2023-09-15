@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 from constants import *
 from delivery_request import DeliveryRequest
 from genetic_algorithm import *
@@ -41,46 +39,19 @@ class Model:
                 self.distance_matrix[i, j] = delivery1.end.distance(delivery2.start) + delivery2.distance
 
     def generate_paths(self, count=DEFAULT_DRONES_COUNT, size=DEFAULT_POP_SIZE, generations=DEFAULT_GENERATIONS):
-        pop1, pop2 = generate_population(len(self.delivery_requests), count, size)
-        result, solutions = evaluate(pop1, pop2, self.calculate_total_distance)
-        scores = result[:, 0]
-        min_index = np.argmin(scores)
+        best_solution, self.best_distance, self.best_time = evolve(
+            len(self.delivery_requests),
+            count,
+            size,
+            generations,
+            self.calculate_total_distance
+        )
 
-        best_solution = solutions[min_index]
-        best_score = result[min_index][0]
-        self.best_distance = result[min_index][1]
-        self.best_time = result[min_index][2]
-        global_best_scores = []
-        best_scores = []
-        mean_scores = []
-
-        for _ in range(generations):
-            pop1, pop2 = selection(pop1, pop2, scores)
-            pop1 = crossover(pop1, 0.7)
-            pop1 = mutation(pop1, shuffle_mutation_logic, 0.1)
-            pop2 = mutation(pop2, add_subtract_mutation_logic, 0.05)
-
-            result, solutions = evaluate(pop1, pop2, self.calculate_total_distance)
-            scores = result[:, 0]
-            min_index = np.argmin(scores)
-            temp_best_score = result[min_index][0]
-
-            if best_score > temp_best_score:
-                best_score = temp_best_score
-                best_solution = solutions[min_index]
-                self.best_distance = result[min_index][1]
-                self.best_time = result[min_index][2]
-
-            global_best_scores.append(best_score)
-            best_scores.append(temp_best_score)
-            mean_scores.append(np.average(scores))
+        self.calculate_paths_vectors(best_solution)
 
         print(best_solution)
         print(self.best_time)
         print(self.best_distance)
-
-        self.calculate_paths_vectors(best_solution)
-        self.show_plot(global_best_scores, best_scores, mean_scores)
 
     def calculate_paths_vectors(self, solution):
         self.paths = []
@@ -96,16 +67,3 @@ class Model:
 
     def calculate_total_distance(self, paths):
         return np.sum(self.distance_matrix[paths[:-1], paths[1:]])
-
-    @staticmethod
-    def show_plot(global_best_scores, best_scores, mean_scores):
-        plt.figure(figsize=(10, 5))
-        plt.plot(range(len(global_best_scores)), global_best_scores, label='Global Best Score', marker='o')
-        plt.plot(range(len(best_scores)), best_scores, label='Best Score', marker='x')
-        plt.plot(range(len(mean_scores)), mean_scores, label='Mean Score', marker='x')
-        plt.xlabel('Generation')
-        plt.ylabel('Score')
-        plt.legend()
-        plt.title('Evolution of Best Scores')
-        plt.grid(True)
-        plt.show()
