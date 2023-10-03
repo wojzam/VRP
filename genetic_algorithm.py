@@ -4,9 +4,9 @@ import numpy as np
 
 class GeneticAlgorithm:
 
-    def __init__(self, requests_count, drones_count, calculate_distance):
+    def __init__(self, requests_count, vehicles_count, calculate_distance):
         self.requests_count = requests_count
-        self.drones_count = drones_count
+        self.vehicles_count = vehicles_count
         self.calculate_distance = calculate_distance
 
     def evolve(self, size, generations, show_plot=True):
@@ -49,19 +49,19 @@ class GeneticAlgorithm:
         return best_solution, best_distance, best_time
 
     def generate_population(self, size):
-        return np.array([np.random.permutation(self.requests_count + self.drones_count - 1) + 1 for _ in range(size)])
+        return np.array([np.random.permutation(self.requests_count + self.vehicles_count - 1) + 1 for _ in range(size)])
 
     def decode_individual(self, row):
         solution = []
-        delivery_threshold = len(row) - self.drones_count + 1
-        paths = [0]
+        delivery_threshold = len(row) - self.vehicles_count + 1
+        routes = [0]
         for value in row:
             if value > delivery_threshold:
-                solution.append(paths)
-                paths = [0]
+                solution.append(routes)
+                routes = [0]
             else:
-                paths.append(value)
-        solution.append(paths)
+                routes.append(value)
+        solution.append(routes)
 
         return solution
 
@@ -70,7 +70,7 @@ class GeneticAlgorithm:
         decoded = []
         for row in pop:
             solution = self.decode_individual(row)
-            distances = [self.calculate_distance(np.array(drone)) for drone in solution]
+            distances = [self.calculate_distance(np.array(vehicle)) for vehicle in solution]
 
             total_distance = sum(distances)
             time = max(distances)
@@ -155,7 +155,7 @@ class GeneticAlgorithm2(GeneticAlgorithm):
 
     def generate_population(self, size):
         pop1 = np.array([np.random.permutation(self.requests_count) + 1 for _ in range(size)])
-        pop2 = np.array([self.create_array_with_sum(self.requests_count, self.drones_count) for _ in range(size)])
+        pop2 = np.array([self.create_array_with_sum(self.requests_count, self.vehicles_count) for _ in range(size)])
 
         return pop1, pop2
 
@@ -168,7 +168,7 @@ class GeneticAlgorithm2(GeneticAlgorithm):
         decoded = []
         for row in zip(*pop):
             solution = self.decode_individual(row)
-            distances = [self.calculate_distance(np.array(drone)) for drone in solution]
+            distances = [self.calculate_distance(np.array(vehicle)) for vehicle in solution]
 
             total_distance = sum(distances)
             time = max(distances)
@@ -183,8 +183,8 @@ class GeneticAlgorithm2(GeneticAlgorithm):
         solution = []
         index = 0
         for count in row[1]:
-            paths = [0] + [row[0][index + i] for i in range(count)]
-            solution.append(paths)
+            routes = [0] + [row[0][index + i] for i in range(count)]
+            solution.append(routes)
             index += count
         return solution
 

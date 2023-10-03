@@ -7,7 +7,7 @@ from view.zoom_pan_canvas import ZoomPanCanvas
 
 class GUI:
     POINT_RADIUS = 4
-    STATION_RADIUS = 8
+    DEPOT_RADIUS = 8
     ARROW_SHAPE = (16, 18, 5)
     COLORS = ["red", "green", "cyan", "orange", "green1", "orchid"]
 
@@ -17,40 +17,40 @@ class GUI:
         tk.title("Test")
         self.canvas = ZoomPanCanvas(tk, bg="white")
         self.canvas.pack(side="left", expand=True, fill="both")
-        self.show_paths = BooleanVar(value=True)
+        self.show_routes = BooleanVar(value=True)
 
         control_panel = Frame(tk)
         control_panel.pack(side="right", padx=10, pady=10, fill="y")
         self.result_info = Label(control_panel)
         self.delivery_count_input = IntInput(control_panel, "Deliveries:", 0, 999, Model.DEFAULT_DELIVERIES_COUNT)
-        self.drones_count_input = IntInput(control_panel, "Drones:", 0, 99, Model.DEFAULT_DRONES_COUNT)
+        self.vehicles_count_input = IntInput(control_panel, "Vehicles:", 0, 99, Model.DEFAULT_VEHICLES_COUNT)
         self.size_input = IntInput(control_panel, "Population:", 0, 999, Model.DEFAULT_POP_SIZE)
         self.generations_input = IntInput(control_panel, "Generations:", 0, 999, Model.DEFAULT_GENERATIONS)
 
         for widget in [
             self.delivery_count_input,
             Button(control_panel, text="Generate", command=self.generate_targets, width=10),
-            self.drones_count_input,
+            self.vehicles_count_input,
             self.size_input,
             self.generations_input,
-            Button(control_panel, text="Run", command=self.generate_paths, width=10),
+            Button(control_panel, text="Run", command=self.generate_routes, width=10),
             self.result_info,
-            Checkbutton(control_panel, text="Show paths", variable=self.show_paths, command=self.update_canvas),
+            Checkbutton(control_panel, text="Show routes", variable=self.show_routes, command=self.update_canvas),
             Button(control_panel, text="Recenter", command=self.canvas.recenter, width=10)
         ]:
             widget.pack(pady=10)
 
         self.generate_targets()
-        self.generate_paths()
+        self.generate_routes()
         tk.mainloop()
 
     def generate_targets(self):
         self.model.generate_targets(self.delivery_count_input.get_value())
         self.update_canvas()
 
-    def generate_paths(self):
-        self.model.generate_paths(
-            self.drones_count_input.get_value(),
+    def generate_routes(self):
+        self.model.generate_routes(
+            self.vehicles_count_input.get_value(),
             self.size_input.get_value(),
             self.generations_input.get_value()
         )
@@ -59,23 +59,23 @@ class GUI:
     def update_canvas(self):
         self.canvas.recenter()
         self.canvas.delete("all")
-        self.draw_paths()
-        self.draw_station()
+        self.draw_routes()
+        self.draw_depot()
         self.draw_delivery_points()
         self.result_info.config(text=self.get_result_info_text())
 
-    def draw_paths(self):
-        for index, path in enumerate(self.model.paths):
-            for vector in path:
+    def draw_routes(self):
+        for index, route in enumerate(self.model.routes):
+            for vector in route:
                 self.draw_vector(vector[0], vector[1], self.COLORS[index % len(self.COLORS)])
 
     def draw_vector(self, start, end, color="grey80"):
-        if self.show_paths.get():
+        if self.show_routes.get():
             self.canvas.create_line(start.x, start.y, end.x, end.y, fill=color, arrow='last',
                                     arrowshape=self.ARROW_SHAPE)
 
-    def draw_station(self):
-        self.draw_point(self.model.station, radius=self.STATION_RADIUS, color="grey")
+    def draw_depot(self):
+        self.draw_point(self.model.depot, radius=self.DEPOT_RADIUS, color="grey")
 
     def draw_delivery_points(self):
         for index, delivery in enumerate(self.model.delivery_requests):
@@ -90,5 +90,5 @@ class GUI:
         return (
             f"Distance: {round(self.model.best_distance, 2)}\n\n"
             f"Time: {round(self.model.best_time, 2)}\n\n"
-            f"Drones: {sum(1 for path in self.model.paths if path)}/{len(self.model.paths)}"
+            f"Vehicles: {sum(1 for route in self.model.routes if route)}/{len(self.model.routes)}"
         )
