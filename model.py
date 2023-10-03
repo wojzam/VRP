@@ -1,6 +1,8 @@
+import numpy as np
+
 from constants import *
 from delivery_request import DeliveryRequest
-from genetic_algorithm import *
+from genetic_algorithm import GeneticAlgorithm
 from point import Point
 
 
@@ -39,13 +41,8 @@ class Model:
                 self.distance_matrix[i, j] = delivery1.end.distance(delivery2.start) + delivery2.distance
 
     def generate_paths(self, count=DEFAULT_DRONES_COUNT, size=DEFAULT_POP_SIZE, generations=DEFAULT_GENERATIONS):
-        best_solution, self.best_distance, self.best_time = evolve(
-            len(self.delivery_requests),
-            count,
-            size,
-            generations,
-            self.calculate_total_distance
-        )
+        ga = GeneticAlgorithm(len(self.delivery_requests), count, self.calculate_total_distance)
+        best_solution, self.best_distance, self.best_time = ga.evolve(size, generations)
 
         self.calculate_paths_vectors(best_solution)
 
