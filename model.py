@@ -1,7 +1,7 @@
 import numpy as np
 
 from constants import *
-from delivery_request import DeliveryRequest
+from customer import Customer
 from genetic_algorithm import GeneticAlgorithm
 from point import Point
 
@@ -26,11 +26,10 @@ class Model:
         self.best_time = 0
         self.routes = []
 
-    def generate_targets(self, count=DEFAULT_DELIVERIES_COUNT):
-        self.delivery_requests = [DeliveryRequest.random() for _ in range(count)]
+    def generate_targets(self, count=DEFAULT_DELIVERIES_COUNT, customer_type=Customer):
+        self.delivery_requests = [customer_type.random() for _ in range(count)]
         self.targets = self.delivery_requests[:]
-        # Depot is added as DeliveryRequest with start and end at the same point
-        self.targets.insert(0, DeliveryRequest(self.depot.x, self.depot.y, self.depot.x, self.depot.y))
+        self.targets.insert(0, customer_type(self.depot))
         self.calculate_distance_matrix()
         self.clear_solution()
 
@@ -38,7 +37,7 @@ class Model:
         self.distance_matrix = np.zeros((len(self.targets), len(self.targets)))
         for i, delivery1 in enumerate(self.targets):
             for j, delivery2 in enumerate(self.targets):
-                self.distance_matrix[i, j] = delivery1.end.distance(delivery2.start) + delivery2.distance
+                self.distance_matrix[i, j] = delivery1.distance(delivery2)
 
     def generate_routes(self, count=DEFAULT_VEHICLES_COUNT, size=DEFAULT_POP_SIZE, generations=DEFAULT_GENERATIONS):
         ga = GeneticAlgorithm(len(self.delivery_requests), count, self.calculate_total_distance)
@@ -57,8 +56,7 @@ class Model:
             for i in range(1, len(route)):
                 current = self.targets[route[i]]
                 previous = self.targets[route[i - 1]]
-                vectors.append((current.start, current.end))
-                vectors.append((previous.end, current.start))
+                vectors.extend(previous.get_vectors_to(current))
 
             self.routes.append(vectors)
 

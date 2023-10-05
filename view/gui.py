@@ -1,5 +1,7 @@
 from tkinter import *
+from tkinter import ttk
 
+from delivery_request import DeliveryRequest
 from model import Model
 from view.int_input import IntInput
 from view.zoom_pan_canvas import ZoomPanCanvas
@@ -10,6 +12,8 @@ class GUI:
     DEPOT_RADIUS = 8
     ARROW_SHAPE = (16, 18, 5)
     COLORS = ["red", "green", "cyan", "orange", "green1", "orchid"]
+    ONE_TO_ALL_NAME = "one to all"
+    ONE_TO_ONE_NAME = "one to one"
 
     def __init__(self, model: Model):
         self.model = model
@@ -26,8 +30,12 @@ class GUI:
         self.vehicles_count_input = IntInput(control_panel, "Vehicles:", 0, 99, Model.DEFAULT_VEHICLES_COUNT)
         self.size_input = IntInput(control_panel, "Population:", 0, 999, Model.DEFAULT_POP_SIZE)
         self.generations_input = IntInput(control_panel, "Generations:", 0, 999, Model.DEFAULT_GENERATIONS)
+        self.customer_type = ttk.Combobox(control_panel, state="readonly",
+                                          values=[self.ONE_TO_ALL_NAME, self.ONE_TO_ONE_NAME])
+        self.customer_type.set(self.ONE_TO_ALL_NAME)
 
         for widget in [
+            self.customer_type,
             self.delivery_count_input,
             Button(control_panel, text="Generate", command=self.generate_targets, width=10),
             self.vehicles_count_input,
@@ -45,7 +53,11 @@ class GUI:
         tk.mainloop()
 
     def generate_targets(self):
-        self.model.generate_targets(self.delivery_count_input.get_value())
+        if self.customer_type.get() == self.ONE_TO_ALL_NAME:
+            self.model.generate_targets(self.delivery_count_input.get_value())
+        else:
+            # TODO : GUI should not have knowledge about DeliveryRequest
+            self.model.generate_targets(self.delivery_count_input.get_value(), customer_type=DeliveryRequest)
         self.update_canvas()
 
     def generate_routes(self):
@@ -79,8 +91,9 @@ class GUI:
 
     def draw_delivery_points(self):
         for index, delivery in enumerate(self.model.delivery_requests):
-            self.draw_point(delivery.start, self.POINT_RADIUS, "white", index + 1)
-            self.draw_point(delivery.end, self.POINT_RADIUS, "black", index + 1)
+            self.draw_point(delivery, self.POINT_RADIUS, "white", index + 1)
+            if self.customer_type.get() == self.ONE_TO_ONE_NAME:
+                self.draw_point(delivery.end, self.POINT_RADIUS, "black", index + 1)
 
     def draw_point(self, point, radius, color="white", text=""):
         self.canvas.create_oval(point.x - radius, point.y - radius, point.x + radius, point.y + radius, fill=color)
