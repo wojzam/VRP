@@ -53,10 +53,10 @@ class GeneticAlgorithm:
 
     def decode_individual(self, row):
         solution = []
-        delivery_threshold = len(row) - self.vehicles_count + 1
+        highest_customer_index = len(row) - self.vehicles_count + 1
         routes = [0]
         for value in row:
-            if value > delivery_threshold:
+            if value > highest_customer_index:
                 solution.append(routes)
                 routes = [0]
             else:

@@ -1,11 +1,11 @@
 import csv
 
-from delivery_request import DeliveryRequest
+from customer_pair import CustomerPair
 
-DEFAULT_FILENAME = "requests.csv"
+DEFAULT_FILENAME = "customers.py"
 
 
-def write_requests_to_file(requests, filename=DEFAULT_FILENAME):
+def write_customers_to_file(requests, filename=DEFAULT_FILENAME):
     rows = [request.get_coordinates() for request in requests]
     with open(filename, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
@@ -13,7 +13,7 @@ def write_requests_to_file(requests, filename=DEFAULT_FILENAME):
         csvwriter.writerows(rows)
 
 
-def read_requests_from_file(filename=DEFAULT_FILENAME):
+def read_customers_from_file(filename=DEFAULT_FILENAME):
     rows = []
     with open(filename, 'r', newline='') as csvfile:
         csvreader = csv.reader(csvfile)
@@ -21,4 +21,4 @@ def read_requests_from_file(filename=DEFAULT_FILENAME):
         for row in csvreader:
             rows.append(row)
 
-    return [DeliveryRequest(*map(float, row)) for row in rows]
+    return [CustomerPair(*map(float, row)) for row in rows]

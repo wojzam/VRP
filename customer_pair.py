@@ -2,7 +2,7 @@ from customer import Customer
 from point import Point
 
 
-class DeliveryRequest(Customer):
+class CustomerPair(Customer):
     MIN_DISTANCE = 50
     MAX_DISTANCE = 600
 
@@ -22,12 +22,12 @@ class DeliveryRequest(Customer):
     def random():
         start = Point.random()
         end = Point.random()
-        while start.distance(end) < DeliveryRequest.MIN_DISTANCE or start.distance(end) > DeliveryRequest.MAX_DISTANCE:
+        while start.distance(end) < CustomerPair.MIN_DISTANCE or start.distance(end) > CustomerPair.MAX_DISTANCE:
             end = Point.random()
-        return DeliveryRequest(start, end)
+        return CustomerPair(start, end)
 
     def get_coordinates(self):
         return [self.start.x, self.start.y, self.end.x, self.end.y]
 
     def __str__(self):
-        return f"Delivery request: Start {self.start}, End {self.end}, Distance {self.distance_value}"
+        return f"Customer Pair: Start {self.start}, End {self.end}, Distance {self.distance_value}"
