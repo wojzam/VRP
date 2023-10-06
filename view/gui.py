@@ -56,7 +56,7 @@ class GUI:
         if self.delivery_type.get() == self.ONE_TO_ALL_NAME:
             self.model.generate_targets(self.customer_count_input.get_value())
         else:
-            # TODO : GUI should not have knowledge about DeliveryRequest
+            # TODO : GUI should not have knowledge about CustomerPair
             self.model.generate_targets(self.customer_count_input.get_value(), customer_type=CustomerPair)
         self.update_canvas()
 

@@ -42,8 +42,11 @@ class Model:
             for j, target2 in enumerate(self.targets):
                 self.distance_matrix[i, j] = target1.distance(target2)
 
-    def generate_routes(self, count=DEFAULT_VEHICLES_COUNT, size=DEFAULT_POP_SIZE, generations=DEFAULT_GENERATIONS):
-        self.ga.set_parameters(len(self.customers), count)
+    def generate_routes(self,
+                        vehicles_count=DEFAULT_VEHICLES_COUNT,
+                        size=DEFAULT_POP_SIZE,
+                        generations=DEFAULT_GENERATIONS):
+        self.ga.set_parameters(len(self.customers), vehicles_count)
         best_solution, self.best_distance, self.best_time = self.ga.evolve(size, generations)
 
         self.calculate_routes_vectors(best_solution)

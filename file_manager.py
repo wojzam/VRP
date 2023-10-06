@@ -5,8 +5,8 @@ from customer_pair import CustomerPair
 DEFAULT_FILENAME = "customers.py"
 
 
-def write_customers_to_file(requests, filename=DEFAULT_FILENAME):
-    rows = [request.get_coordinates() for request in requests]
+def write_customers_to_file(customers, filename=DEFAULT_FILENAME):
+    rows = [customer.get_coordinates() for customer in customers]
     with open(filename, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(['startX', 'startY', 'endX', 'endY'])

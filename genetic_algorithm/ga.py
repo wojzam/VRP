@@ -4,13 +4,13 @@ from genetic_algorithm.utils import *
 
 class GA:
     vehicles_count = None
-    requests_count = None
+    customers_count = None
 
     def __init__(self, calculate_distance_func):
         self.calculate_distance_func = calculate_distance_func
 
-    def set_parameters(self, requests_count, vehicles_count):
-        self.requests_count = requests_count
+    def set_parameters(self, customers_count, vehicles_count):
+        self.customers_count = customers_count
         self.vehicles_count = vehicles_count
 
     def evolve(self, size, generations, show_plot=True):
@@ -53,7 +53,7 @@ class GA:
         return best_solution, best_distance, best_time
 
     def generate_population(self, size):
-        return np.array([np.random.permutation(self.requests_count + self.vehicles_count - 1) + 1 for _ in range(size)])
+        return np.array([np.random.permutation(self.customers_count + self.vehicles_count - 1) + 1 for _ in range(size)])
 
     def decode_individual(self, row):
         solution = []
