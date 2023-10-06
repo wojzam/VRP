@@ -21,6 +21,9 @@ class Model:
     best_distance = 0
     best_time = 0
 
+    def __init__(self):
+        self.ga = GA(self.calculate_total_distance)
+
     def clear_solution(self):
         self.best_distance = 0
         self.best_time = 0
@@ -40,8 +43,8 @@ class Model:
                 self.distance_matrix[i, j] = target1.distance(target2)
 
     def generate_routes(self, count=DEFAULT_VEHICLES_COUNT, size=DEFAULT_POP_SIZE, generations=DEFAULT_GENERATIONS):
-        ga = GA(len(self.customers), count, self.calculate_total_distance)
-        best_solution, self.best_distance, self.best_time = ga.evolve(size, generations)
+        self.ga.set_parameters(len(self.customers), count)
+        best_solution, self.best_distance, self.best_time = self.ga.evolve(size, generations)
 
         self.calculate_routes_vectors(best_solution)
 

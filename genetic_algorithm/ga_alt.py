@@ -19,7 +19,7 @@ class GAAlt(GA):
         decoded = []
         for row in zip(*pop):
             solution = self.decode_individual(row)
-            distances = [self.calculate_distance(np.array(vehicle)) for vehicle in solution]
+            distances = [self.calculate_distance_func(np.array(vehicle)) for vehicle in solution]
 
             total_distance = sum(distances)
             time = max(distances)
@@ -47,7 +47,8 @@ class GAAlt(GA):
 
         return tuple(pop[selected_indices] for pop in population)
 
-    def crossover(self, population, p=1.):
+    @staticmethod
+    def crossover(population, p=1.):
         new_pop = np.copy(population[0])
         num_individuals, num_genes = new_pop.shape
         for i in range(0, num_individuals - 1, 2):
@@ -56,7 +57,8 @@ class GAAlt(GA):
 
         return new_pop, population[1]
 
-    def mutation(self, population, p=1.):
+    @staticmethod
+    def mutation(population, p=1.):
         new_pop1 = population[0].copy()
         new_pop2 = population[1].copy()
         num_individuals, num_genes = new_pop1.shape

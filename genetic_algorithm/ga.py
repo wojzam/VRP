@@ -1,13 +1,17 @@
-from strategies import *
-from utils import *
+from genetic_algorithm.strategies import *
+from genetic_algorithm.utils import *
 
 
 class GA:
+    vehicles_count = None
+    requests_count = None
 
-    def __init__(self, requests_count, vehicles_count, calculate_distance):
+    def __init__(self, calculate_distance_func):
+        self.calculate_distance_func = calculate_distance_func
+
+    def set_parameters(self, requests_count, vehicles_count):
         self.requests_count = requests_count
         self.vehicles_count = vehicles_count
-        self.calculate_distance = calculate_distance
 
     def evolve(self, size, generations, show_plot=True):
         pop = self.generate_population(size)
@@ -70,7 +74,7 @@ class GA:
         decoded = []
         for row in pop:
             solution = self.decode_individual(row)
-            distances = [self.calculate_distance(np.array(vehicle)) for vehicle in solution]
+            distances = [self.calculate_distance_func(np.array(vehicle)) for vehicle in solution]
 
             total_distance = sum(distances)
             time = max(distances)
@@ -89,7 +93,8 @@ class GA:
 
         return population[selected_indices]
 
-    def crossover(self, population, p=1.):
+    @staticmethod
+    def crossover(population, p=1.):
         new_pop = np.copy(population)
         num_individuals, num_genes = new_pop.shape
         for i in range(0, num_individuals - 1, 2):
@@ -99,7 +104,7 @@ class GA:
         return new_pop
 
     @staticmethod
-    def mutation(self, population, p=1.):
+    def mutation(population, p=1.):
         new_pop = population.copy()
         num_individuals, num_genes = new_pop.shape
         if num_genes > 1:
