@@ -2,7 +2,7 @@ import numpy as np
 
 from constants import *
 from customer import Customer
-from genetic_algorithm import GeneticAlgorithm
+from genetic_algorithm import GA
 from point import Point
 
 
@@ -40,7 +40,7 @@ class Model:
                 self.distance_matrix[i, j] = target1.distance(target2)
 
     def generate_routes(self, count=DEFAULT_VEHICLES_COUNT, size=DEFAULT_POP_SIZE, generations=DEFAULT_GENERATIONS):
-        ga = GeneticAlgorithm(len(self.customers), count, self.calculate_total_distance)
+        ga = GA(len(self.customers), count, self.calculate_total_distance)
         best_solution, self.best_distance, self.best_time = ga.evolve(size, generations)
 
         self.calculate_routes_vectors(best_solution)
