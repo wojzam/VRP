@@ -1,3 +1,4 @@
+import colorsys
 import tkinter as tk
 from tkinter import ttk
 
@@ -11,7 +12,6 @@ class GUI:
     POINT_RADIUS = 4
     DEPOT_RADIUS = 8
     ARROW_SHAPE = (16, 18, 5)
-    COLORS = ["red", "green", "cyan", "orange", "green1", "orchid"]
 
     def __init__(self, model: Model):
         self.model = model
@@ -60,9 +60,10 @@ class GUI:
         self.optimization_tab.update_result_info(self.model)
 
     def draw_routes(self):
+        colors = self.generate_colors(len(self.model.routes))
         for index, route in enumerate(self.model.routes):
             for vector in route:
-                self.draw_vector(vector[0], vector[1], self.COLORS[index % len(self.COLORS)])
+                self.draw_vector(vector[0], vector[1], colors[index])
 
     def draw_vector(self, start, end, color="grey80"):
         if self.view_tab.should_show_routes():
@@ -81,3 +82,14 @@ class GUI:
     def draw_point(self, point, radius, color="white", text=""):
         self.canvas.create_oval(point.x - radius, point.y - radius, point.x + radius, point.y + radius, fill=color)
         self.canvas.create_text(point.x, point.y - 2 * radius, text=text)
+
+    @staticmethod
+    def generate_colors(count):
+        colors = []
+        for i in range(count):
+            hue = (i / count) % 1.0
+            r, g, b = colorsys.hsv_to_rgb(hue, 1, 1)
+            r, g, b = int(r * 255), int(g * 255), int(b * 255)
+            colors.append(f'#{r:02X}{g:02X}{b:02X}')
+
+        return colors
