@@ -15,10 +15,10 @@ class Point:
         dy = self.y - other.y
         return math.sqrt(dx ** 2 + dy ** 2)
 
-    @staticmethod
-    def random():
-        return Point(np.random.randint(CANVAS_MARGIN, CANVAS_WIDTH - CANVAS_MARGIN),
-                     np.random.randint(CANVAS_MARGIN, CANVAS_HEIGHT - CANVAS_MARGIN))
+    @classmethod
+    def random(cls):
+        return cls(np.random.randint(CANVAS_MARGIN, CANVAS_WIDTH - CANVAS_MARGIN),
+                   np.random.randint(CANVAS_MARGIN, CANVAS_HEIGHT - CANVAS_MARGIN))
 
     def __str__(self):
         return f"({self.x}, {self.y})"

@@ -1,9 +1,8 @@
 import numpy as np
 
 from constants import *
-from customer import Customer
+from file_manager import *
 from genetic_algorithm import GA
-from point import Point
 
 
 class Model:
@@ -29,12 +28,19 @@ class Model:
         self.best_time = 0
         self.routes = []
 
-    def generate_targets(self, count=DEFAULT_CUSTOMERS_COUNT, customer_type=Customer):
+    def generate_customers(self, count=DEFAULT_CUSTOMERS_COUNT, customer_type=Customer):
         self.customers = [customer_type.random() for _ in range(count)]
+        self.update_targets()
+
+    def update_targets(self):
         self.targets = self.customers[:]
-        self.targets.insert(0, customer_type(self.depot))  # Add depot
+        self.add_depot()
         self.calculate_distance_matrix()
         self.clear_solution()
+
+    def add_depot(self):
+        depot_class = Customer if not self.customers else type(self.customers[0])
+        self.targets.insert(0, depot_class(self.depot))
 
     def calculate_distance_matrix(self):
         self.distance_matrix = np.zeros((len(self.targets), len(self.targets)))

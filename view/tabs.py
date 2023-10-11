@@ -1,6 +1,8 @@
 from tkinter import Button, Checkbutton, Frame, Label, BooleanVar
 from tkinter import ttk
 
+from customer import Customer
+from customer_pair import CustomerPair
 from model import Model
 from view.int_input import IntInput
 
@@ -42,13 +44,14 @@ class OptimizationTab(Frame):
 class EnvironmentTab(Frame):
     ONE_TO_ALL = "one to all"
     ONE_TO_ONE = "one to one"
+    DELIVERY_TYPE_TO_CUSTOMER = {ONE_TO_ALL: Customer, ONE_TO_ONE: CustomerPair}
 
-    def __init__(self, master, generate_targets, *args, **kwargs):
+    def __init__(self, master, save_file, read_file, generate_targets, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         customers_file_frame = ttk.LabelFrame(self, text="Customers file")
-        read_button = Button(customers_file_frame, text="Read", width=10)
-        save_button = Button(customers_file_frame, text="Save", width=10)
+        read_button = Button(customers_file_frame, command=read_file, text="Read", width=10)
+        save_button = Button(customers_file_frame, command=save_file, text="Save", width=10)
         self._delivery_type = ttk.Combobox(self, state="readonly", values=[self.ONE_TO_ALL, self.ONE_TO_ONE])
         self._delivery_type.set(self.ONE_TO_ALL)
         self._customer_count_input = IntInput(self, "Customers:", 0, 999, Model.DEFAULT_CUSTOMERS_COUNT)
@@ -58,8 +61,8 @@ class EnvironmentTab(Frame):
         read_button.pack(padx=5, pady=5, side="left")
         save_button.pack(padx=5, pady=5, side="right")
 
-    def get_delivery_type(self):
-        return self._delivery_type.get()
+    def get_customer_class(self):
+        return self.DELIVERY_TYPE_TO_CUSTOMER[self._delivery_type.get()]
 
     def get_customers_count(self):
         return self._customer_count_input.get_value()

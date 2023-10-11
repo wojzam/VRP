@@ -3,6 +3,7 @@ from point import Point
 
 
 class CustomerPair(Customer):
+    COLUMNS = ['startX', 'startY', 'endX', 'endY']
     MIN_DISTANCE = 50
     MAX_DISTANCE = 600
 
@@ -18,16 +19,16 @@ class CustomerPair(Customer):
     def get_vectors_to(self, other):
         return [(other.start, other.end), (self.end, other.start)]
 
-    @staticmethod
-    def random():
+    def get_coordinates(self):
+        return [self.start.x, self.start.y, self.end.x, self.end.y]
+
+    @classmethod
+    def random(cls):
         start = Point.random()
         end = Point.random()
         while start.distance(end) < CustomerPair.MIN_DISTANCE or start.distance(end) > CustomerPair.MAX_DISTANCE:
             end = Point.random()
-        return CustomerPair(start, end)
-
-    def get_coordinates(self):
-        return [self.start.x, self.start.y, self.end.x, self.end.y]
+        return cls(start, end)
 
     def __str__(self):
         return f"Customer Pair: Start {self.start}, End {self.end}, Distance {self.distance_value}"

@@ -2,7 +2,6 @@ import colorsys
 import tkinter as tk
 from tkinter import ttk
 
-from customer_pair import CustomerPair
 from model import Model
 from view.tabs import OptimizationTab, EnvironmentTab, ViewTab
 from view.zoom_pan_canvas import ZoomPanCanvas
@@ -31,16 +30,13 @@ class GUI:
         tabs.add(self.environment_tab, text="Environment")
         tabs.add(self.view_tab, text="View")
 
-        self.generate_targets()
+        self.generate_customers()
         self.generate_routes()
         root.mainloop()
 
-    def generate_targets(self):
-        if self.environment_tab.get_delivery_type() == EnvironmentTab.ONE_TO_ALL:
-            self.model.generate_targets(self.environment_tab.get_customers_count())
-        else:
-            # TODO : GUI should not have knowledge about CustomerPair
-            self.model.generate_targets(self.environment_tab.get_customers_count(), customer_type=CustomerPair)
+    def generate_customers(self):
+        self.model.generate_customers(self.environment_tab.get_customers_count(),
+                                      self.environment_tab.get_customer_class())
         self.update_canvas()
 
     def generate_routes(self):
@@ -76,7 +72,7 @@ class GUI:
     def draw_customer_points(self):
         for index, customer in enumerate(self.model.customers):
             self.draw_point(customer, self.POINT_RADIUS, "white", index + 1)
-            if self.environment_tab.get_delivery_type() == EnvironmentTab.ONE_TO_ONE:
+            if hasattr(customer, "end"):
                 self.draw_point(customer.end, self.POINT_RADIUS, "black", index + 1)
 
     def draw_point(self, point, radius, color="white", text=""):
