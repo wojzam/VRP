@@ -1,24 +1,31 @@
 import csv
 
+from customer import Customer
 from customer_pair import CustomerPair
+from point import Point
 
-DEFAULT_FILENAME = "customers.py"
 
-
-def write_customers_to_file(customers, filename=DEFAULT_FILENAME):
+def write_customers_to_file(customers, column_names, file):
     rows = [customer.get_coordinates() for customer in customers]
-    with open(filename, 'w', newline='') as csvfile:
+    with open(file, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(['startX', 'startY', 'endX', 'endY'])
+        csvwriter.writerow(column_names)
         csvwriter.writerows(rows)
 
 
-def read_customers_from_file(filename=DEFAULT_FILENAME):
-    rows = []
-    with open(filename, 'r', newline='') as csvfile:
+def read_customers_from_file(file):
+    customers = []
+    with open(file, 'r', newline='') as csvfile:
         csvreader = csv.reader(csvfile)
         next(csvreader)
         for row in csvreader:
-            rows.append(row)
+            customers.append(retrieve_customer(row))
+    return customers
 
-    return [CustomerPair(*map(float, row)) for row in rows]
+
+def retrieve_customer(row):
+    row = list(map(int, row))
+    try:
+        return Customer(Point(*row))
+    except TypeError:
+        return CustomerPair(Point(row[0], row[1]), Point(row[2], row[3]))

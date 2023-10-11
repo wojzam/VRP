@@ -74,3 +74,11 @@ class Model:
 
     def calculate_total_distance(self, routes):
         return np.sum(self.distance_matrix[routes[:-1], routes[1:]])
+
+    def save_customers(self, file_path):
+        if self.customers:
+            write_customers_to_file(self.customers, self.customers[0].COLUMNS, file_path)
+
+    def read_customers(self, file_path):
+        self.customers = read_customers_from_file(file_path)
+        self.update_targets()

@@ -1,6 +1,6 @@
 import colorsys
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 
 from model import Model
 from view.tabs import OptimizationTab, EnvironmentTab, ViewTab
@@ -23,7 +23,7 @@ class GUI:
         tabs.pack(side="right", fill="y")
 
         self.optimization_tab = OptimizationTab(tabs, self.generate_routes, pady=20)
-        self.environment_tab = EnvironmentTab(tabs, self.generate_targets, pady=20)
+        self.environment_tab = EnvironmentTab(tabs, self.save_customers, self.read_customers, self.generate_customers, pady=20)
         self.view_tab = ViewTab(tabs, self.update_canvas, self.canvas.recenter, pady=20)
 
         tabs.add(self.optimization_tab, text="Optimization")
@@ -78,6 +78,17 @@ class GUI:
     def draw_point(self, point, radius, color="white", text=""):
         self.canvas.create_oval(point.x - radius, point.y - radius, point.x + radius, point.y + radius, fill=color)
         self.canvas.create_text(point.x, point.y - 2 * radius, text=text)
+
+    def read_customers(self):
+        file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
+        if file_path:
+            self.model.read_customers(file_path)
+            self.update_canvas()
+
+    def save_customers(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV Files", "*.csv")])
+        if file_path:
+            self.model.save_customers(file_path)
 
     @staticmethod
     def generate_colors(count):
