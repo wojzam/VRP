@@ -23,9 +23,9 @@ class GUI:
         tabs = ttk.Notebook(root)
         tabs.pack(side="right", fill="y")
 
-        self.optimization_tab = OptimizationTab(tabs, self.generate_routes, pady=30)
-        self.environment_tab = EnvironmentTab(tabs, self.generate_targets, pady=30)
-        self.view_tab = ViewTab(tabs, self.update_canvas, self.canvas.recenter, pady=30)
+        self.optimization_tab = OptimizationTab(tabs, self.generate_routes, pady=20)
+        self.environment_tab = EnvironmentTab(tabs, self.generate_targets, pady=20)
+        self.view_tab = ViewTab(tabs, self.update_canvas, self.canvas.recenter, pady=20)
 
         tabs.add(self.optimization_tab, text="Optimization")
         tabs.add(self.environment_tab, text="Environment")

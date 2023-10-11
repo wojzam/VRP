@@ -12,7 +12,7 @@ class OptimizationTab(Frame):
         self._vehicles_count_input = IntInput(self, "Vehicles:", 0, 99, Model.DEFAULT_VEHICLES_COUNT)
         self._size_input = IntInput(self, "Population:", 0, 999, Model.DEFAULT_POP_SIZE)
         self._generations_input = IntInput(self, "Generations:", 0, 999, Model.DEFAULT_GENERATIONS)
-        Button(self, text="Run", command=generate_routes, width=10)
+        Button(self, text="Run", command=generate_routes)
         self._result_info = Label(ttk.LabelFrame(self, text="Result"))
 
         pack_children_of(self)
@@ -46,12 +46,17 @@ class EnvironmentTab(Frame):
     def __init__(self, master, generate_targets, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
-        self._delivery_type = ttk.Combobox(self, state="readonly", width=10, values=[self.ONE_TO_ALL, self.ONE_TO_ONE])
+        customers_file_frame = ttk.LabelFrame(self, text="Customers file")
+        read_button = Button(customers_file_frame, text="Read", width=10)
+        save_button = Button(customers_file_frame, text="Save", width=10)
+        self._delivery_type = ttk.Combobox(self, state="readonly", values=[self.ONE_TO_ALL, self.ONE_TO_ONE])
         self._delivery_type.set(self.ONE_TO_ALL)
         self._customer_count_input = IntInput(self, "Customers:", 0, 999, Model.DEFAULT_CUSTOMERS_COUNT)
-        Button(self, text="Generate", command=generate_targets, width=10)
+        Button(self, text="Generate", command=generate_targets)
 
         pack_children_of(self)
+        read_button.pack(padx=5, pady=5, side="left")
+        save_button.pack(padx=5, pady=5, side="right")
 
     def get_delivery_type(self):
         return self._delivery_type.get()
@@ -66,7 +71,7 @@ class ViewTab(Frame):
 
         self._show_routes = BooleanVar(value=True)
         Checkbutton(self, text="Show routes", variable=self._show_routes, command=update_canvas)
-        Button(self, text="Recenter", command=recenter, width=10)
+        Button(self, text="Recenter", command=recenter)
 
         pack_children_of(self)
 
@@ -76,4 +81,4 @@ class ViewTab(Frame):
 
 def pack_children_of(root):
     for c in root.children:
-        root.children[c].pack(pady=10)
+        root.children[c].pack(padx=20, pady=10, fill="x")
