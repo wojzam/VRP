@@ -23,7 +23,8 @@ class GUI:
         tabs.pack(side="right", fill="y")
 
         self.optimization_tab = OptimizationTab(tabs, self.generate_routes, pady=20)
-        self.environment_tab = EnvironmentTab(tabs, self.save_customers, self.read_customers, self.generate_customers, pady=20)
+        self.environment_tab = EnvironmentTab(tabs, self.save_customers, self.read_customers, self.generate_customers,
+                                              pady=20)
         self.view_tab = ViewTab(tabs, self.update_canvas, self.canvas.recenter, pady=20)
 
         tabs.add(self.optimization_tab, text="Optimization")
@@ -48,12 +49,12 @@ class GUI:
         self.update_canvas()
 
     def update_canvas(self):
-        self.canvas.recenter()
         self.canvas.delete("all")
         self.draw_routes()
         self.draw_depot()
         self.draw_customer_points()
         self.optimization_tab.update_result_info(self.model)
+        self.canvas.recenter()
 
     def draw_routes(self):
         colors = self.generate_colors(len(self.model.routes))
@@ -76,7 +77,8 @@ class GUI:
                 self.draw_point(customer.end, self.POINT_RADIUS, "black", index + 1)
 
     def draw_point(self, point, radius, color="white", text=""):
-        self.canvas.create_oval(point.x - radius, point.y - radius, point.x + radius, point.y + radius, fill=color)
+        self.canvas.create_oval(point.x - radius, point.y - radius, point.x + radius, point.y + radius,
+                                fill=color, tags="fixed_scale")
         self.canvas.create_text(point.x, point.y - 2 * radius, text=text)
 
     def read_customers(self):
