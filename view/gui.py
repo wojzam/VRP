@@ -8,7 +8,7 @@ from view.zoom_pan_canvas import ZoomPanCanvas
 
 
 class GUI:
-    POINT_RADIUS = 4
+    POINT_RADIUS = 7
     DEPOT_RADIUS = 8
     ARROW_SHAPE = (16, 18, 5)
 
@@ -74,12 +74,12 @@ class GUI:
         for index, customer in enumerate(self.model.customers):
             self.draw_point(customer, self.POINT_RADIUS, "white", index + 1)
             if hasattr(customer, "end"):
-                self.draw_point(customer.end, self.POINT_RADIUS, "black", index + 1)
+                self.draw_point(customer.end, self.POINT_RADIUS, "black", index + 1, "white")
 
-    def draw_point(self, point, radius, color="white", text=""):
+    def draw_point(self, point, radius, color="white", text="", text_color="black"):
         self.canvas.create_oval(point.x - radius, point.y - radius, point.x + radius, point.y + radius,
-                                fill=color, tags="fixed_scale")
-        self.canvas.create_text(point.x, point.y - 2 * radius, text=text)
+                                outline="gray", fill=color, tags="fixed_scale")
+        self.canvas.create_text(point.x, point.y, text=text, fill=text_color)
 
     def read_customers(self):
         file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
