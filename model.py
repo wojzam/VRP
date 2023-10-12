@@ -1,6 +1,5 @@
 import numpy as np
 
-from constants import *
 from file_manager import *
 from genetic_algorithm import GA
 
@@ -15,7 +14,7 @@ class Model:
     targets = []
     routes = []
     distance_matrix = np.empty((0, 0))
-    depot = Point(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
+    depot = Point(0, 0)
 
     best_distance = 0
     best_time = 0

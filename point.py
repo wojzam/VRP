@@ -17,8 +17,8 @@ class Point:
 
     @classmethod
     def random(cls):
-        return cls(np.random.randint(CANVAS_MARGIN, CANVAS_WIDTH - CANVAS_MARGIN),
-                   np.random.randint(CANVAS_MARGIN, CANVAS_HEIGHT - CANVAS_MARGIN))
+        return cls(np.random.randint(-CANVAS_WIDTH / 2, CANVAS_WIDTH / 2),
+                   np.random.randint(-CANVAS_HEIGHT / 2, CANVAS_HEIGHT / 2))
 
     def __str__(self):
         return f"({self.x}, {self.y})"
