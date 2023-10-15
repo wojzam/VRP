@@ -46,20 +46,28 @@ class EnvironmentTab(Frame):
     ONE_TO_ONE = "one to one"
     DELIVERY_TYPE_TO_CUSTOMER = {ONE_TO_ALL: Customer, ONE_TO_ONE: CustomerPair}
 
-    def __init__(self, master, save_file, read_file, generate_targets, *args, **kwargs):
+    def __init__(self, master, save_file, read_file, generate_targets, update_depot_position, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         customers_file_frame = ttk.LabelFrame(self, text="Customers file")
         read_button = Button(customers_file_frame, command=read_file, text="Read", width=10)
         save_button = Button(customers_file_frame, command=save_file, text="Save", width=10)
+        depot_position_frame = ttk.LabelFrame(self, text="Depot position")
+        self._depot_x = IntInput(depot_position_frame, "x:", -9999, 9999, 0)
+        self._depot_y = IntInput(depot_position_frame, "y:", -9999, 9999, 0)
+        Button(depot_position_frame, text="Update", command=update_depot_position)
         self._delivery_type = ttk.Combobox(self, state="readonly", values=[self.ONE_TO_ALL, self.ONE_TO_ONE])
         self._delivery_type.set(self.ONE_TO_ALL)
         self._customer_count_input = IntInput(self, "Customers:", 0, 999, Model.DEFAULT_CUSTOMERS_COUNT)
         Button(self, text="Generate", command=generate_targets)
 
         pack_children_of(self)
+        pack_children_of(depot_position_frame, padx=5, pady=5, side="left")
         read_button.pack(padx=5, pady=5, side="left")
         save_button.pack(padx=5, pady=5, side="right")
+
+    def get_depot_position(self):
+        return self._depot_x.get_value(), self._depot_y.get_value()
 
     def get_customer_class(self):
         return self.DELIVERY_TYPE_TO_CUSTOMER[self._delivery_type.get()]
@@ -82,6 +90,6 @@ class ViewTab(Frame):
         return self._show_routes.get()
 
 
-def pack_children_of(root):
+def pack_children_of(root, padx=20, pady=10, fill="x", **kwargs):
     for c in root.children:
-        root.children[c].pack(padx=20, pady=10, fill="x")
+        root.children[c].pack(padx=padx, pady=pady, fill=fill, **kwargs)

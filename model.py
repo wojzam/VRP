@@ -41,6 +41,10 @@ class Model:
         depot_class = Customer if not self.customers else type(self.customers[0])
         self.targets.insert(0, depot_class(self.depot))
 
+    def set_depot_position(self, x, y):
+        self.depot.x, self.depot.y = x, y
+        self.update_targets()
+
     def calculate_distance_matrix(self):
         self.distance_matrix = np.zeros((len(self.targets), len(self.targets)))
         for i, target1 in enumerate(self.targets):
