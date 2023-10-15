@@ -4,7 +4,7 @@ from constants import *
 
 
 class ZoomPanCanvas(Canvas):
-    MAX_SCALE_ADJUSTMENT_ITERATIONS = 50
+    MAX_SCALE_ADJUSTMENT_ITERATIONS = 20
 
     def __init__(self, master, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, *args, **kwargs):
         super().__init__(master, *args, **kwargs, width=width, height=height)
@@ -34,6 +34,8 @@ class ZoomPanCanvas(Canvas):
     def _reset_view(self):
         self.xview_moveto(0)
         self.yview_moveto(0)
+        self._update_scale(1 / self.current_scale)
+        self.current_scale = 1.0
         self.update()
 
     def _center_view(self, width, height):
@@ -42,7 +44,6 @@ class ZoomPanCanvas(Canvas):
         self.scan_dragto((width - (bbox[0] + bbox[2])) // 2, (height - (bbox[1] + bbox[3])) // 2, gain=1)
 
     def _adjust_zoom(self, width, height):
-        self.current_scale = 1.0
         for _ in range(self.MAX_SCALE_ADJUSTMENT_ITERATIONS):
             bbox = self.bbox("all")
             scale_factor = min(width / (bbox[2] - bbox[0] + 2 * CANVAS_MARGIN),
@@ -59,8 +60,7 @@ class ZoomPanCanvas(Canvas):
     def _maintain_fixed_size(self, scale_factor):
         fixed_scale_items = self.find_withtag("fixed_scale")
         for item in fixed_scale_items:
-            oval_coords = self.coords(item)
-            x1, y1, x2, y2 = oval_coords
+            x1, y1, x2, y2 = self.coords(item)
             center_x = (x1 + x2) / 2
             center_y = (y1 + y2) / 2
             scaled_center_x = center_x * scale_factor
