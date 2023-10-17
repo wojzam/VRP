@@ -44,7 +44,9 @@ class GUI:
         self.model.generate_routes(
             self.optimization_tab.get_vehicles_count(),
             self.optimization_tab.get_size(),
-            self.optimization_tab.get_generations_count()
+            self.optimization_tab.get_generations_count(),
+            self.optimization_tab.get_pc(),
+            self.optimization_tab.get_pm(),
         )
         self.update_canvas()
 

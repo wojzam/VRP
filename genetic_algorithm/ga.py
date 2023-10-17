@@ -13,7 +13,7 @@ class GA:
         self.customers_count = customers_count
         self.vehicles_count = vehicles_count
 
-    def evolve(self, size, generations, show_plot=True):
+    def evolve(self, size, generations, pc, pm, show_plot=True):
         pop = self.generate_population(size)
         result, solutions = self.evaluate(pop)
         scores = result[:, 0]
@@ -29,8 +29,8 @@ class GA:
 
         for _ in range(generations):
             pop = self.selection(pop, scores=scores)
-            pop = self.crossover(pop, 0.7)
-            pop = self.mutation(pop, 0.1)
+            pop = self.crossover(pop, pc)
+            pop = self.mutation(pop, pm)
 
             result, solutions = self.evaluate(pop)
             scores = result[:, 0]
@@ -53,7 +53,8 @@ class GA:
         return best_solution, best_distance, best_time
 
     def generate_population(self, size):
-        return np.array([np.random.permutation(self.customers_count + self.vehicles_count - 1) + 1 for _ in range(size)])
+        return np.array(
+            [np.random.permutation(self.customers_count + self.vehicles_count - 1) + 1 for _ in range(size)])
 
     def decode_individual(self, row):
         solution = []

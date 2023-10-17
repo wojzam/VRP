@@ -9,6 +9,8 @@ class Model:
     DEFAULT_VEHICLES_COUNT = 3
     DEFAULT_GENERATIONS = 100
     DEFAULT_POP_SIZE = 60
+    DEFAULT_PC = 0.7
+    DEFAULT_PM = 0.1
 
     customers = []
     targets = []
@@ -54,9 +56,11 @@ class Model:
     def generate_routes(self,
                         vehicles_count=DEFAULT_VEHICLES_COUNT,
                         size=DEFAULT_POP_SIZE,
-                        generations=DEFAULT_GENERATIONS):
+                        generations=DEFAULT_GENERATIONS,
+                        pc=DEFAULT_PC,
+                        pm=DEFAULT_PM):
         self.ga.set_parameters(len(self.customers), vehicles_count)
-        best_solution, self.best_distance, self.best_time = self.ga.evolve(size, generations)
+        best_solution, self.best_distance, self.best_time = self.ga.evolve(size, generations, pc, pm)
 
         self.calculate_routes_vectors(best_solution)
 

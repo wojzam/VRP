@@ -4,7 +4,7 @@ from tkinter import ttk
 from customer import Customer
 from customer_pair import CustomerPair
 from model import Model
-from view.int_input import IntInput
+from view.input import IntInput, FloatInput
 
 
 class OptimizationTab(Frame):
@@ -12,12 +12,19 @@ class OptimizationTab(Frame):
         super().__init__(master, *args, **kwargs)
 
         self._vehicles_count_input = IntInput(self, "Vehicles:", 0, 99, Model.DEFAULT_VEHICLES_COUNT)
-        self._size_input = IntInput(self, "Population:", 0, 999, Model.DEFAULT_POP_SIZE)
-        self._generations_input = IntInput(self, "Generations:", 0, 999, Model.DEFAULT_GENERATIONS)
+        row1_frame, row2_frame = Frame(self), Frame(self)
+        self._size_input = IntInput(row1_frame, "Population:", 0, 999, Model.DEFAULT_POP_SIZE)
+        self._pc_input = FloatInput(row1_frame, "PC:", 0., 1., Model.DEFAULT_PC, width=4)
+        self._generations_input = IntInput(row2_frame, "Generations:", 0, 999, Model.DEFAULT_GENERATIONS)
+        self._pm_input = FloatInput(row2_frame, "PM:", 0., 1., Model.DEFAULT_PM, width=4)
         Button(self, text="Run", command=generate_routes)
         self._result_info = Label(ttk.LabelFrame(self, text="Result"))
 
         pack_children_of(self)
+        self._size_input.pack(side="left")
+        self._pc_input.pack(side="right")
+        self._generations_input.pack(side="left")
+        self._pm_input.pack(side="right")
         self._result_info.pack(pady=10)
 
     def update_result_info(self, model: Model):
@@ -31,6 +38,12 @@ class OptimizationTab(Frame):
 
     def get_generations_count(self):
         return self._generations_input.get_value()
+
+    def get_pc(self):
+        return self._pc_input.get_value()
+
+    def get_pm(self):
+        return self._pm_input.get_value()
 
     @staticmethod
     def retrieve_result_info_text(model: Model):
@@ -53,8 +66,8 @@ class EnvironmentTab(Frame):
         read_button = Button(customers_file_frame, command=read_file, text="Read", width=10)
         save_button = Button(customers_file_frame, command=save_file, text="Save", width=10)
         depot_position_frame = ttk.LabelFrame(self, text="Depot position")
-        self._depot_x = IntInput(depot_position_frame, "x:", -9999, 9999, 0)
-        self._depot_y = IntInput(depot_position_frame, "y:", -9999, 9999, 0)
+        self._depot_x_input = IntInput(depot_position_frame, "x:", -9999, 9999, 0)
+        self._depot_y_input = IntInput(depot_position_frame, "y:", -9999, 9999, 0)
         Button(depot_position_frame, text="Update", command=update_depot_position)
         self._delivery_type = ttk.Combobox(self, state="readonly", values=[self.ONE_TO_ALL, self.ONE_TO_ONE])
         self._delivery_type.set(self.ONE_TO_ALL)
@@ -67,7 +80,7 @@ class EnvironmentTab(Frame):
         save_button.pack(padx=5, pady=5, side="right")
 
     def get_depot_position(self):
-        return self._depot_x.get_value(), self._depot_y.get_value()
+        return self._depot_x_input.get_value(), self._depot_y_input.get_value()
 
     def get_customer_class(self):
         return self.DELIVERY_TYPE_TO_CUSTOMER[self._delivery_type.get()]
