@@ -50,7 +50,7 @@ class GA:
         if show_plot:
             plot_results(global_best_scores, best_scores, mean_scores)
 
-        return best_solution, best_distance, best_time
+        return best_solution, best_distance, best_time, best_score
 
     def generate_population(self, size):
         return np.array(

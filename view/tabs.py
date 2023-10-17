@@ -18,7 +18,7 @@ class OptimizationTab(Frame):
         self._generations_input = IntInput(row2_frame, "Generations:", 0, 999, Model.DEFAULT_GENERATIONS)
         self._pm_input = FloatInput(row2_frame, "PM:", 0., 1., Model.DEFAULT_PM, width=4)
         Button(self, text="Run", command=generate_routes)
-        self._result_info = Label(ttk.LabelFrame(self, text="Result"))
+        self._result_info = Label(ttk.LabelFrame(self, text="Result"), justify="left")
 
         pack_children_of(self)
         self._size_input.pack(side="left")
@@ -50,6 +50,8 @@ class OptimizationTab(Frame):
         return (
             f"Distance: {round(model.best_distance, 2)}\n\n"
             f"Time: {round(model.best_time, 2)}\n\n"
+            f"Score: {round(model.best_score, 2)}\n\n"
+            f"Exec. time: {round(model.execution_time, 2)}s\n\n"
             f"Vehicles: {sum(1 for route in model.routes if route)}/{len(model.routes)}"
         )
 

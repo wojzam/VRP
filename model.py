@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 
 from file_manager import *
@@ -20,6 +22,8 @@ class Model:
 
     best_distance = 0
     best_time = 0
+    best_score = 0
+    execution_time = 0
 
     def __init__(self):
         self.ga = GA(self.calculate_total_distance)
@@ -27,6 +31,8 @@ class Model:
     def clear_solution(self):
         self.best_distance = 0
         self.best_time = 0
+        self.best_score = 0
+        self.execution_time = 0
         self.routes = []
 
     def generate_customers(self, count=DEFAULT_CUSTOMERS_COUNT, customer_type=Customer):
@@ -60,13 +66,13 @@ class Model:
                         pc=DEFAULT_PC,
                         pm=DEFAULT_PM):
         self.ga.set_parameters(len(self.customers), vehicles_count)
-        best_solution, self.best_distance, self.best_time = self.ga.evolve(size, generations, pc, pm)
-
+        st = time.time()
+        best_solution, self.best_distance, self.best_time, self.best_score = self.ga.evolve(size, generations, pc, pm)
+        self.execution_time = time.time() - st
         self.calculate_routes_vectors(best_solution)
 
         print(best_solution)
-        print(self.best_time)
-        print(self.best_distance)
+        print(f"Time:{self.best_time} Distance: {self.best_distance} Execution time: {self.execution_time}")
 
     def calculate_routes_vectors(self, solution):
         self.routes = []
