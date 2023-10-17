@@ -47,6 +47,8 @@ class GUI:
             self.optimization_tab.get_generations_count(),
             self.optimization_tab.get_pc(),
             self.optimization_tab.get_pm(),
+            self.optimization_tab.get_distance_factor(),
+            self.optimization_tab.get_time_factor()
         )
         self.update_canvas()
 

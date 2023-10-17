@@ -12,15 +12,19 @@ class OptimizationTab(Frame):
         super().__init__(master, *args, **kwargs)
 
         self._vehicles_count_input = IntInput(self, "Vehicles:", 0, 99, Model.DEFAULT_VEHICLES_COUNT)
-        row1_frame, row2_frame = Frame(self), Frame(self)
+        row1_frame, row2_frame, row3_frame = Frame(self), Frame(self), Frame(self)
         self._size_input = IntInput(row1_frame, "Population:", 0, 999, Model.DEFAULT_POP_SIZE)
         self._pc_input = FloatInput(row1_frame, "PC:", 0., 1., Model.DEFAULT_PC, width=4)
         self._generations_input = IntInput(row2_frame, "Generations:", 0, 999, Model.DEFAULT_GENERATIONS)
         self._pm_input = FloatInput(row2_frame, "PM:", 0., 1., Model.DEFAULT_PM, width=4)
+        self._distance_factor_input = FloatInput(row3_frame, "score = distance*", -999., 999.,
+                                                 Model.DEFAULT_DISTANCE_FACTOR, width=4)
+        self._time_factor_input = FloatInput(row3_frame, "+ time*", -999., 999., Model.DEFAULT_TIME_FACTOR, width=4)
         Button(self, text="Run", command=generate_routes)
         self._result_info = Label(ttk.LabelFrame(self, text="Result"), justify="left")
 
         pack_children_of(self)
+        pack_children_of(row3_frame, padx=0, pady=0, side="left")
         self._size_input.pack(side="left")
         self._pc_input.pack(side="right")
         self._generations_input.pack(side="left")
@@ -44,6 +48,12 @@ class OptimizationTab(Frame):
 
     def get_pm(self):
         return self._pm_input.get_value()
+
+    def get_distance_factor(self):
+        return self._distance_factor_input.get_value()
+
+    def get_time_factor(self):
+        return self._time_factor_input.get_value()
 
     @staticmethod
     def retrieve_result_info_text(model: Model):

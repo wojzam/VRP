@@ -3,15 +3,13 @@ from genetic_algorithm.utils import *
 
 
 class GA:
-    vehicles_count = None
-    customers_count = None
 
-    def __init__(self, calculate_distance_func):
-        self.calculate_distance_func = calculate_distance_func
-
-    def set_parameters(self, customers_count, vehicles_count):
+    def __init__(self, customers_count, vehicles_count, distance_factor, time_factor, calculate_distance_func):
         self.customers_count = customers_count
         self.vehicles_count = vehicles_count
+        self.distance_factor = distance_factor
+        self.time_factor = time_factor
+        self.calculate_distance_func = calculate_distance_func
 
     def evolve(self, size, generations, pc, pm, show_plot=True):
         pop = self.generate_population(size)
@@ -79,12 +77,15 @@ class GA:
 
             total_distance = sum(distances)
             time = max(distances)
-            score = total_distance + 2 * time
+            score = self.calculate_score(total_distance, time)
 
             evaluated_pop.append([score, total_distance, time])
             decoded.append(solution)
 
         return np.array(evaluated_pop), decoded
+
+    def calculate_score(self, total_distance, time):
+        return self.distance_factor * total_distance + self.time_factor * time
 
     @staticmethod
     def selection(population, scores):

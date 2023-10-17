@@ -23,7 +23,7 @@ class GAAlt(GA):
 
             total_distance = sum(distances)
             time = max(distances)
-            score = total_distance + 2 * time
+            score = self.calculate_score(total_distance, time)
 
             evaluated_pop.append([score, total_distance, time])
             decoded.append(solution)

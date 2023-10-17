@@ -13,6 +13,8 @@ class Model:
     DEFAULT_POP_SIZE = 60
     DEFAULT_PC = 0.7
     DEFAULT_PM = 0.1
+    DEFAULT_DISTANCE_FACTOR = 1.
+    DEFAULT_TIME_FACTOR = 2.
 
     customers = []
     targets = []
@@ -24,9 +26,6 @@ class Model:
     best_time = 0
     best_score = 0
     execution_time = 0
-
-    def __init__(self):
-        self.ga = GA(self.calculate_total_distance)
 
     def clear_solution(self):
         self.best_distance = 0
@@ -64,15 +63,18 @@ class Model:
                         size=DEFAULT_POP_SIZE,
                         generations=DEFAULT_GENERATIONS,
                         pc=DEFAULT_PC,
-                        pm=DEFAULT_PM):
-        self.ga.set_parameters(len(self.customers), vehicles_count)
+                        pm=DEFAULT_PM,
+                        distance_factor=DEFAULT_DISTANCE_FACTOR,
+                        time_factor=DEFAULT_TIME_FACTOR):
+        ga = GA(len(self.customers), vehicles_count, distance_factor, time_factor, self.calculate_total_distance)
         st = time.time()
-        best_solution, self.best_distance, self.best_time, self.best_score = self.ga.evolve(size, generations, pc, pm)
+        best_solution, self.best_distance, self.best_time, self.best_score = ga.evolve(size, generations, pc, pm)
         self.execution_time = time.time() - st
         self.calculate_routes_vectors(best_solution)
 
         print(best_solution)
-        print(f"Time:{self.best_time} Distance: {self.best_distance} Execution time: {self.execution_time}")
+        print(f"Time:{self.best_time} Distance: {self.best_distance} Score: {self.best_score}"
+              f" Execution time: {self.execution_time}")
 
     def calculate_routes_vectors(self, solution):
         self.routes = []
