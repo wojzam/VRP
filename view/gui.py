@@ -15,7 +15,7 @@ class GUI:
     def __init__(self, model: Model):
         self.model = model
         root = tk.Tk()
-        root.title("Delivery Route Optimization")
+        root.title("VRP Optimization")
         self.canvas = ZoomPanCanvas(root, bg="white")
         self.canvas.pack(side="left", expand=True, fill="both")
 
