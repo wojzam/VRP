@@ -1,4 +1,4 @@
-import time
+from time import time as measure_time
 
 import numpy as np
 
@@ -18,21 +18,11 @@ class Model:
 
     customers = []
     targets = []
-    routes = []
     distance_matrix = np.empty((0, 0))
     depot = Point(0, 0)
 
-    best_distance = 0
-    best_time = 0
-    best_score = 0
-    execution_time = 0
-
-    def clear_solution(self):
-        self.best_distance = 0
-        self.best_time = 0
-        self.best_score = 0
-        self.execution_time = 0
-        self.routes = []
+    def __init__(self):
+        self.result_history = ResultHistory()
 
     def generate_customers(self, count=DEFAULT_CUSTOMERS_COUNT, customer_type=Customer):
         self.customers = [customer_type.random() for _ in range(count)]
@@ -42,7 +32,7 @@ class Model:
         self.targets = self.customers[:]
         self.add_depot()
         self.calculate_distance_matrix()
-        self.clear_solution()
+        self.result_history.clear()
 
     def add_depot(self):
         depot_class = Customer if not self.customers else type(self.customers[0])
@@ -67,25 +57,25 @@ class Model:
                         distance_factor=DEFAULT_DISTANCE_FACTOR,
                         time_factor=DEFAULT_TIME_FACTOR):
         ga = GA(len(self.customers), vehicles_count, distance_factor, time_factor, self.calculate_total_distance)
-        st = time.time()
-        best_solution, self.best_distance, self.best_time, self.best_score = ga.evolve(size, generations, pc, pm)
-        self.execution_time = time.time() - st
-        self.calculate_routes_vectors(best_solution)
+        start_time = measure_time()
+        solution, distance, time, score = ga.evolve(size, generations, pc, pm)
+        execution_time = measure_time() - start_time
 
-        print(best_solution)
-        print(f"Time:{self.best_time} Distance: {self.best_distance} Score: {self.best_score}"
-              f" Execution time: {self.execution_time}")
+        self.result_history.add(Result(self.calculate_routes_vectors(solution), distance, time, score, execution_time))
+
+        print("Solution: ", solution)
+        print(f"Time:{time} Distance: {distance} Score: {score} Execution time: {execution_time}")
 
     def calculate_routes_vectors(self, solution):
-        self.routes = []
+        routes = []
         for route in solution:
             vectors = []
             for i in range(1, len(route)):
                 current = self.targets[route[i]]
                 previous = self.targets[route[i - 1]]
                 vectors.extend(previous.get_vectors_to(current))
-
-            self.routes.append(vectors)
+            routes.append(vectors)
+        return routes
 
     def calculate_total_distance(self, routes):
         return np.sum(self.distance_matrix[routes[:-1], routes[1:]])
@@ -97,3 +87,43 @@ class Model:
     def read_customers(self, file_path):
         self.customers = read_customers_from_file(file_path)
         self.update_targets()
+
+    @property
+    def result(self):
+        return self.result_history.get_current()
+
+    def get_pagination_indicator(self):
+        return f"{self.result_history.current_index + 1}/{len(self.result_history.results)}"
+
+
+class Result:
+
+    def __init__(self, routes=None, distance=0., time=0., score=0., execution_time=0.):
+        self.routes = routes if routes is not None else []
+        self.distance = distance
+        self.time = time
+        self.score = score
+        self.execution_time = execution_time
+
+
+class ResultHistory:
+    results = []
+    current_index = 0
+
+    def clear(self):
+        self.results = []
+        self.current_index = 0
+
+    def navigate(self, index_change):
+        new_index = self.current_index + index_change
+        if 0 <= new_index < len(self.results):
+            self.current_index = new_index
+
+    def add(self, result):
+        self.results.append(result)
+        self.current_index = len(self.results) - 1
+
+    def get_current(self):
+        if not self.results:
+            return None
+        return self.results[self.current_index]

@@ -22,7 +22,7 @@ class GUI:
         tabs = ttk.Notebook(root)
         tabs.pack(side="right", fill="y")
 
-        self.optimization_tab = OptimizationTab(tabs, self.generate_routes, pady=20)
+        self.optimization_tab = OptimizationTab(tabs, self.generate_routes, self.navigate_result_history, pady=20)
         self.environment_tab = EnvironmentTab(tabs, self.save_customers, self.read_customers, self.generate_customers,
                                               self.update_depot_position, pady=20)
         self.view_tab = ViewTab(tabs, self.update_canvas, self.canvas.recenter, pady=20)
@@ -52,6 +52,13 @@ class GUI:
         )
         self.update_canvas()
 
+    def navigate_result_history(self, index_change):
+        def inner():
+            self.model.result_history.navigate(index_change)
+            self.update_canvas()
+
+        return inner
+
     def update_depot_position(self):
         self.model.set_depot_position(*self.environment_tab.get_depot_position())
         self.update_canvas()
@@ -61,14 +68,15 @@ class GUI:
         self.draw_routes()
         self.draw_depot()
         self.draw_customer_points()
-        self.optimization_tab.update_result_info(self.model)
+        self.optimization_tab.update_result(self.model)
         self.canvas.recenter()
 
     def draw_routes(self):
-        colors = self.generate_colors(len(self.model.routes))
-        for index, route in enumerate(self.model.routes):
-            for vector in route:
-                self.draw_vector(vector[0], vector[1], colors[index])
+        if self.model.result:
+            colors = self.generate_colors(len(self.model.result.routes))
+            for index, route in enumerate(self.model.result.routes):
+                for vector in route:
+                    self.draw_vector(vector[0], vector[1], colors[index])
 
     def draw_vector(self, start, end, color="grey80"):
         if self.view_tab.should_show_routes():

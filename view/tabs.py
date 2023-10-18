@@ -3,12 +3,12 @@ from tkinter import ttk
 
 from customer import Customer
 from customer_pair import CustomerPair
-from model import Model
+from model import Model, Result
 from view.input import IntInput, FloatInput
 
 
 class OptimizationTab(Frame):
-    def __init__(self, master, generate_routes, *args, **kwargs):
+    def __init__(self, master, generate_routes, navigate_result_history, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self._vehicles_count_input = IntInput(self, "Vehicles:", 0, 99, Model.DEFAULT_VEHICLES_COUNT)
@@ -21,18 +21,29 @@ class OptimizationTab(Frame):
                                                  Model.DEFAULT_DISTANCE_FACTOR, width=4)
         self._time_factor_input = FloatInput(row3_frame, "+ time*", -999., 999., Model.DEFAULT_TIME_FACTOR, width=4)
         Button(self, text="Run", command=generate_routes)
-        self._result_info = Label(ttk.LabelFrame(self, text="Result"), justify="left")
+        self.result_frame = ttk.LabelFrame(self, text="Result")
+        self._result_info = Label(self.result_frame, justify="left")
+        navigation_frame = Frame(self.result_frame)
+        Button(navigation_frame, text="⬅", command=navigate_result_history(-1))
+        self.pagination_indicator = Label(navigation_frame, text="")
+        Button(navigation_frame, text="➡", command=navigate_result_history(1))
 
         pack_children_of(self)
         pack_children_of(row3_frame, padx=0, pady=0, side="left")
+        pack_children_of(self.result_frame, pady=10)
+        pack_children_of(navigation_frame, padx=5, pady=0, side="left", expand=True)
         self._size_input.pack(side="left")
         self._pc_input.pack(side="right")
         self._generations_input.pack(side="left")
         self._pm_input.pack(side="right")
-        self._result_info.pack(pady=10)
 
-    def update_result_info(self, model: Model):
-        self._result_info.config(text=self.retrieve_result_info_text(model))
+    def update_result(self, model: Model):
+        if not model.result:
+            self.result_frame.pack_forget()
+        else:
+            self.result_frame.pack(padx=20, pady=10, fill="x")
+            self._result_info.config(text=self.retrieve_result_info_text(model.result))
+            self.pagination_indicator.config(text=model.get_pagination_indicator())
 
     def get_vehicles_count(self):
         return self._vehicles_count_input.get_value()
@@ -56,13 +67,13 @@ class OptimizationTab(Frame):
         return self._time_factor_input.get_value()
 
     @staticmethod
-    def retrieve_result_info_text(model: Model):
+    def retrieve_result_info_text(result: Result):
         return (
-            f"Distance: {round(model.best_distance, 2)}\n\n"
-            f"Time: {round(model.best_time, 2)}\n\n"
-            f"Score: {round(model.best_score, 2)}\n\n"
-            f"Exec. time: {round(model.execution_time, 2)}s\n\n"
-            f"Vehicles: {sum(1 for route in model.routes if route)}/{len(model.routes)}"
+            f"Distance: {round(result.distance, 2)}\n\n"
+            f"Time: {round(result.time, 2)}\n\n"
+            f"Score: {round(result.score, 2)}\n\n"
+            f"Exec. time: {round(result.execution_time, 2)}s\n\n"
+            f"Vehicles: {sum(1 for route in result.routes if route)}/{len(result.routes)}"
         )
 
 
