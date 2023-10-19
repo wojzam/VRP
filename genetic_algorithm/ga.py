@@ -10,8 +10,10 @@ class GA:
         self.distance_factor = distance_factor
         self.time_factor = time_factor
         self.calculate_distance_func = calculate_distance_func
+        self.validate()
 
     def evolve(self, size, generations, pc, pm, show_plot=True):
+        self.validate_evolve(size, generations)
         pop = self.generate_population(size)
         result, solutions = self.evaluate(pop)
         scores = result[:, 0]
@@ -114,3 +116,13 @@ class GA:
                 if np.random.uniform() < p:
                     shuffle_mutation(new_pop[i])
         return new_pop
+
+    def validate(self):
+        if self.customers_count <= 0 or self.vehicles_count <= 0 or (
+                self.distance_factor == 0 and self.time_factor == 0) or not self.calculate_distance_func:
+            raise ValueError("Incorrect parameters")
+
+    @staticmethod
+    def validate_evolve(size, generations):
+        if size <= 0 or generations <= 0:
+            raise ValueError("Incorrect parameters")

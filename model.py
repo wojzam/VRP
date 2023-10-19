@@ -56,15 +56,18 @@ class Model:
                         pm=DEFAULT_PM,
                         distance_factor=DEFAULT_DISTANCE_FACTOR,
                         time_factor=DEFAULT_TIME_FACTOR):
-        ga = GA(len(self.customers), vehicles_count, distance_factor, time_factor, self.calculate_total_distance)
-        start_time = measure_time()
-        solution, distance, time, score = ga.evolve(size, generations, pc, pm)
-        execution_time = measure_time() - start_time
+        try:
+            ga = GA(len(self.customers), vehicles_count, distance_factor, time_factor, self.calculate_total_distance)
+            start_time = measure_time()
+            solution, distance, time, score = ga.evolve(size, generations, pc, pm)
+            exec_time = measure_time() - start_time
 
-        self.result_history.add(Result(self.calculate_routes_vectors(solution), distance, time, score, execution_time))
+            self.result_history.add(Result(self.calculate_routes_vectors(solution), distance, time, score, exec_time))
 
-        print("Solution: ", solution)
-        print(f"Time:{time} Distance: {distance} Score: {score} Execution time: {execution_time}")
+            print("Solution: ", solution)
+            print(f"Time:{time} Distance: {distance} Score: {score} Execution time: {exec_time}")
+        except ValueError as e:
+            print(f"ValueError: {e}")
 
     def calculate_routes_vectors(self, solution):
         routes = []
