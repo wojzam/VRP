@@ -82,25 +82,37 @@ class EnvironmentTab(Frame):
     ONE_TO_ONE = "one to one"
     DELIVERY_TYPE_TO_CUSTOMER = {ONE_TO_ALL: Customer, ONE_TO_ONE: CustomerPair}
 
-    def __init__(self, master, save_file, read_file, generate_targets, update_depot_position, *args, **kwargs):
+    def __init__(self, master, save_file, read_file, generate_targets, generate_on_line, update_depot_position, *args,
+                 **kwargs):
         super().__init__(master, *args, **kwargs)
 
         customers_file_frame = ttk.LabelFrame(self, text="Customers file")
-        read_button = Button(customers_file_frame, command=read_file, text="Read", width=10)
-        save_button = Button(customers_file_frame, command=save_file, text="Save", width=10)
+        Button(customers_file_frame, command=read_file, text="Read")
+        Button(customers_file_frame, command=save_file, text="Save")
+
         depot_position_frame = ttk.LabelFrame(self, text="Depot position")
         self._depot_x_input = IntInput(depot_position_frame, "x:", -9999, 9999, 0)
         self._depot_y_input = IntInput(depot_position_frame, "y:", -9999, 9999, 0)
         Button(depot_position_frame, text="Update", command=update_depot_position)
-        self._delivery_type = ttk.Combobox(self, state="readonly", values=[self.ONE_TO_ALL, self.ONE_TO_ONE])
+
+        random_frame = ttk.LabelFrame(self, text="Random customers")
+        self._delivery_type = ttk.Combobox(random_frame, state="readonly", values=[self.ONE_TO_ALL, self.ONE_TO_ONE])
         self._delivery_type.set(self.ONE_TO_ALL)
-        self._customer_count_input = IntInput(self, "Customers:", 0, 999, Model.DEFAULT_CUSTOMERS_COUNT)
-        Button(self, text="Generate", command=generate_targets)
+        self._customer_count_input = IntInput(random_frame, "Customers:", 0, 999, Model.DEFAULT_CUSTOMERS_COUNT)
+        Button(random_frame, text="Generate", command=generate_targets)
+
+        along_lines_frame = ttk.LabelFrame(self, text="Customers along the lines")
+        lines_input_row_frame = Frame(along_lines_frame)
+        self._per_line_input = IntInput(lines_input_row_frame, "Per line:", 0, 99, Model.DEFAULT_PER_LINE_COUNT)
+        self._lines_count_input = IntInput(lines_input_row_frame, "Lines:", 0, 99, Model.DEFAULT_LINES_COUNT)
+        Button(along_lines_frame, text="Generate", command=generate_on_line)
 
         pack_children_of(self)
+        pack_children_of(customers_file_frame, padx=5, pady=0, side="left", expand=True)
         pack_children_of(depot_position_frame, padx=5, pady=5, side="left")
-        read_button.pack(padx=5, pady=5, side="left")
-        save_button.pack(padx=5, pady=5, side="right")
+        pack_children_of(random_frame)
+        pack_children_of(along_lines_frame)
+        pack_children_of(lines_input_row_frame, padx=5, pady=0, side="left", expand=True)
 
     def get_depot_position(self):
         return self._depot_x_input.get_value(), self._depot_y_input.get_value()
@@ -110,6 +122,12 @@ class EnvironmentTab(Frame):
 
     def get_customers_count(self):
         return self._customer_count_input.get_value()
+
+    def get_per_line_count(self):
+        return self._per_line_input.get_value()
+
+    def get_lines_count(self):
+        return self._lines_count_input.get_value()
 
 
 class ViewTab(Frame):

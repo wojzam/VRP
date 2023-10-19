@@ -24,7 +24,8 @@ class GUI:
 
         self.optimization_tab = OptimizationTab(tabs, self.generate_routes, self.navigate_result_history, pady=20)
         self.environment_tab = EnvironmentTab(tabs, self.save_customers, self.read_customers, self.generate_customers,
-                                              self.update_depot_position, pady=20)
+                                              self.generate_customers_along_the_lines, self.update_depot_position,
+                                              pady=20)
         self.view_tab = ViewTab(tabs, self.update_canvas, self.canvas.recenter, pady=20)
 
         tabs.add(self.optimization_tab, text="Optimization")
@@ -38,6 +39,11 @@ class GUI:
     def generate_customers(self):
         self.model.generate_customers(self.environment_tab.get_customers_count(),
                                       self.environment_tab.get_customer_class())
+        self.update_canvas()
+
+    def generate_customers_along_the_lines(self):
+        self.model.generate_customers_along_the_lines(self.environment_tab.get_per_line_count(),
+                                                      self.environment_tab.get_lines_count())
         self.update_canvas()
 
     def generate_routes(self):

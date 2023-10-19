@@ -8,6 +8,8 @@ from genetic_algorithm import GA
 
 class Model:
     DEFAULT_CUSTOMERS_COUNT = 6
+    DEFAULT_PER_LINE_COUNT = 4
+    DEFAULT_LINES_COUNT = 4
     DEFAULT_VEHICLES_COUNT = 3
     DEFAULT_GENERATIONS = 100
     DEFAULT_POP_SIZE = 60
@@ -24,8 +26,20 @@ class Model:
     def __init__(self):
         self.result_history = ResultHistory()
 
-    def generate_customers(self, count=DEFAULT_CUSTOMERS_COUNT, customer_type=Customer):
-        self.customers = [customer_type.random() for _ in range(count)]
+    def generate_customers(self, count=DEFAULT_CUSTOMERS_COUNT, customer_class=Customer):
+        self.customers = [customer_class.random() for _ in range(count)]
+        self.update_targets()
+
+    def generate_customers_along_the_lines(self, per_line_count=DEFAULT_PER_LINE_COUNT,
+                                           lines_count=DEFAULT_LINES_COUNT, scale=100):
+        angles = 2 * np.pi * np.arange(lines_count) / lines_count
+        cos_values, sin_values = np.cos(angles), np.sin(angles)
+
+        alphas = scale * (np.arange(per_line_count) + 1) / per_line_count
+        point_x = np.round(cos_values[:, np.newaxis] * alphas).flatten().astype(int)
+        point_y = np.round(sin_values[:, np.newaxis] * alphas).flatten().astype(int)
+
+        self.customers = [Customer(Point(x, y)) for x, y in zip(point_x, point_y)]
         self.update_targets()
 
     def update_targets(self):
