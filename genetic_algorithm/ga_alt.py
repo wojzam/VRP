@@ -48,12 +48,12 @@ class GAAlt(GA):
         return tuple(pop[selected_indices] for pop in population)
 
     @staticmethod
-    def crossover(population, p=1.):
+    def crossover(population, crossover_method, p=1.):
         new_pop = np.copy(population[0])
         num_individuals, num_genes = new_pop.shape
         for i in range(0, num_individuals - 1, 2):
             if np.random.uniform() < p:
-                new_pop[i], new_pop[i + 1] = order_crossover(new_pop[i], new_pop[i + 1])
+                new_pop[i], new_pop[i + 1] = crossover_method(new_pop[i], new_pop[i + 1])
 
         return new_pop, population[1]
 

@@ -54,7 +54,8 @@ class GUI:
             self.optimization_tab.get_pc(),
             self.optimization_tab.get_pm(),
             self.optimization_tab.get_distance_factor(),
-            self.optimization_tab.get_time_factor()
+            self.optimization_tab.get_time_factor(),
+            self.optimization_tab.get_crossover_method()
         )
         self.update_canvas()
 

@@ -4,6 +4,7 @@ import numpy as np
 
 from file_manager import *
 from genetic_algorithm import GA
+from genetic_algorithm.strategies import order_crossover
 
 
 class Model:
@@ -17,6 +18,7 @@ class Model:
     DEFAULT_PM = 0.1
     DEFAULT_DISTANCE_FACTOR = 1.
     DEFAULT_TIME_FACTOR = 2.
+    DEFAULT_CROSSOVER_METHOD = order_crossover
 
     customers = []
     targets = []
@@ -69,11 +71,12 @@ class Model:
                         pc=DEFAULT_PC,
                         pm=DEFAULT_PM,
                         distance_factor=DEFAULT_DISTANCE_FACTOR,
-                        time_factor=DEFAULT_TIME_FACTOR):
+                        time_factor=DEFAULT_TIME_FACTOR,
+                        crossover_method=DEFAULT_CROSSOVER_METHOD):
         try:
             ga = GA(len(self.customers), vehicles_count, distance_factor, time_factor, self.calculate_total_distance)
             start_time = measure_time()
-            solution, distance, time, score = ga.evolve(size, generations, pc, pm)
+            solution, distance, time, score = ga.evolve(size, generations, pc, pm, crossover_method)
             exec_time = measure_time() - start_time
 
             self.result_history.add(Result(self.calculate_routes_vectors(solution), distance, time, score, exec_time))

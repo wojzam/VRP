@@ -3,11 +3,17 @@ from tkinter import ttk
 
 from customer import Customer
 from customer_pair import CustomerPair
+from genetic_algorithm.strategies import *
 from model import Model, Result
 from view.input import IntInput, FloatInput
 
 
 class OptimizationTab(Frame):
+    OX = "order crossover"
+    CX = "cycle crossover"
+    PMX = "partially mapped crossover"
+    CROSSOVER_METHODS = {OX: order_crossover, CX: cycle_crossover, PMX: partially_mapped_crossover}
+
     def __init__(self, master, generate_routes, navigate_result_history, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
@@ -20,7 +26,10 @@ class OptimizationTab(Frame):
         self._distance_factor_input = FloatInput(row3_frame, "score = distance*", -999., 999.,
                                                  Model.DEFAULT_DISTANCE_FACTOR, width=4)
         self._time_factor_input = FloatInput(row3_frame, "+ time*", -999., 999., Model.DEFAULT_TIME_FACTOR, width=4)
+        self._crossover_method = ttk.Combobox(self, state="readonly", values=[self.OX, self.CX, self.PMX])
+        self._crossover_method.set(self.OX)
         Button(self, text="Run", command=generate_routes)
+
         self.result_frame = ttk.LabelFrame(self, text="Result")
         self._result_info = Label(self.result_frame, justify="left")
         navigation_frame = Frame(self.result_frame)
@@ -65,6 +74,9 @@ class OptimizationTab(Frame):
 
     def get_time_factor(self):
         return self._time_factor_input.get_value()
+
+    def get_crossover_method(self):
+        return self.CROSSOVER_METHODS[self._crossover_method.get()]
 
     @staticmethod
     def retrieve_result_info_text(result: Result):

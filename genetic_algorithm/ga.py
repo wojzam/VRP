@@ -12,7 +12,7 @@ class GA:
         self.calculate_distance_func = calculate_distance_func
         self.validate()
 
-    def evolve(self, size, generations, pc, pm, show_plot=True):
+    def evolve(self, size, generations, pc, pm, crossover_method=order_crossover, show_plot=True):
         self.validate_evolve(size, generations)
         pop = self.generate_population(size)
         result, solutions = self.evaluate(pop)
@@ -29,7 +29,7 @@ class GA:
 
         for _ in range(generations):
             pop = self.selection(pop, scores=scores)
-            pop = self.crossover(pop, pc)
+            pop = self.crossover(pop, crossover_method, pc)
             pop = self.mutation(pop, pm)
 
             result, solutions = self.evaluate(pop)
@@ -98,12 +98,12 @@ class GA:
         return population[selected_indices]
 
     @staticmethod
-    def crossover(population, p=1.):
+    def crossover(population, crossover_method, p=1.):
         new_pop = np.copy(population)
         num_individuals, num_genes = new_pop.shape
         for i in range(0, num_individuals - 1, 2):
             if np.random.uniform() < p:
-                new_pop[i], new_pop[i + 1] = order_crossover(new_pop[i], new_pop[i + 1])
+                new_pop[i], new_pop[i + 1] = crossover_method(new_pop[i], new_pop[i + 1])
 
         return new_pop
 
