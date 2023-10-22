@@ -9,10 +9,13 @@ from view.input import IntInput, FloatInput
 
 
 class OptimizationTab(Frame):
-    OX = "order crossover"
+    OX1 = "order crossover"
+    OX2 = "order-based crossover"
+    POS = "position-based crossover"
     CX = "cycle crossover"
     PMX = "partially mapped crossover"
-    CROSSOVER_METHODS = {OX: order_crossover, CX: cycle_crossover, PMX: partially_mapped_crossover}
+    CROSSOVER_METHODS = {OX1: order_crossover, OX2: order_based_crossover, POS: position_based_crossover,
+                         CX: cycle_crossover, PMX: partially_mapped_crossover}
 
     def __init__(self, master, generate_routes, navigate_result_history, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -26,8 +29,9 @@ class OptimizationTab(Frame):
         self._distance_factor_input = FloatInput(row3_frame, "score = distance*", -999., 999.,
                                                  Model.DEFAULT_DISTANCE_FACTOR, width=4)
         self._time_factor_input = FloatInput(row3_frame, "+ time*", -999., 999., Model.DEFAULT_TIME_FACTOR, width=4)
-        self._crossover_method = ttk.Combobox(self, state="readonly", values=[self.OX, self.CX, self.PMX])
-        self._crossover_method.set(self.OX)
+        self._crossover_method = ttk.Combobox(self, state="readonly",
+                                              values=[self.OX1, self.OX2, self.POS, self.CX, self.PMX])
+        self._crossover_method.set(self.OX1)
         Button(self, text="Run", command=generate_routes)
 
         self.result_frame = ttk.LabelFrame(self, text="Result")

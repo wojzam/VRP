@@ -8,8 +8,7 @@ def order_crossover(parent1, parent2):
     missing1 = parent2[~np.isin(parent2, parent1[cx1:cx2])]
     missing2 = parent1[~np.isin(parent1, parent2[cx1:cx2])]
 
-    offspring1 = np.empty(size, dtype=int)
-    offspring2 = np.empty(size, dtype=int)
+    offspring1, offspring2 = np.empty(size, dtype=int), np.empty(size, dtype=int)
 
     offspring1[:cx1] = missing1[:cx1]
     offspring2[:cx1] = missing2[:cx1]
@@ -21,10 +20,40 @@ def order_crossover(parent1, parent2):
     return offspring1, offspring2
 
 
+def order_based_crossover(parent1, parent2):
+    size = len(parent1)
+    selected = np.random.choice([True, False], size)
+
+    matching1 = np.isin(parent2, parent1[selected])
+    matching2 = np.isin(parent1, parent2[selected])
+
+    offspring1, offspring2 = np.empty(size, dtype=int), np.empty(size, dtype=int)
+
+    offspring1[matching1] = parent1[selected]
+    offspring2[matching2] = parent2[selected]
+    offspring1[~matching1] = parent2[~matching1]
+    offspring2[~matching2] = parent1[~matching2]
+
+    return offspring1, offspring2
+
+
+def position_based_crossover(parent1, parent2):
+    size = len(parent1)
+    selected = np.random.choice([True, False], size)
+
+    offspring1, offspring2 = np.empty(size, dtype=int), np.empty(size, dtype=int)
+
+    offspring1[selected] = parent1[selected]
+    offspring2[selected] = parent2[selected]
+    offspring1[~selected] = parent2[~np.isin(parent2, parent1[selected])]
+    offspring2[~selected] = parent1[~np.isin(parent1, parent2[selected])]
+
+    return offspring1, offspring2
+
+
 def cycle_crossover(parent1, parent2):
     size = len(parent1)
-    offspring1 = np.empty(size, dtype=int)
-    offspring2 = np.empty(size, dtype=int)
+    offspring1, offspring2 = np.empty(size, dtype=int), np.empty(size, dtype=int)
     visited = np.zeros(size, dtype=bool)
     source1, source2 = parent1, parent2
 
