@@ -68,8 +68,7 @@ def partially_mapped_crossover(parent1, parent2):
 
 def shuffle_mutation(individual):
     size = len(individual)
-    subset_size = np.random.randint(min(2, size), size + 1)
-    indices = np.random.choice(size, size=subset_size, replace=False)
+    indices = np.random.choice([True, False], size)
     subset = individual[indices]
     np.random.shuffle(subset)
     individual[indices] = subset
