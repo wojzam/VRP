@@ -4,8 +4,6 @@ from constants import *
 
 
 class ZoomPanCanvas(Canvas):
-    MAX_SCALE_ADJUSTMENT_ITERATIONS = 20
-
     def __init__(self, master, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, *args, **kwargs):
         super().__init__(master, *args, **kwargs, width=width, height=height)
 
@@ -28,7 +26,7 @@ class ZoomPanCanvas(Canvas):
     def recenter(self):
         self._reset_view()
         width, height = self.winfo_width(), self.winfo_height()
-        self._adjust_zoom(width, height)
+        self._resize_to_fit(width, height)
         self._center_view(width, height)
 
     def _reset_view(self):
@@ -43,14 +41,11 @@ class ZoomPanCanvas(Canvas):
         self.scan_mark(0, 0)
         self.scan_dragto((width - (bbox[0] + bbox[2])) // 2, (height - (bbox[1] + bbox[3])) // 2, gain=1)
 
-    def _adjust_zoom(self, width, height):
-        for _ in range(self.MAX_SCALE_ADJUSTMENT_ITERATIONS):
-            bbox = self.bbox("all")
-            scale_factor = min(width / (bbox[2] - bbox[0] + 2 * CANVAS_MARGIN),
-                               height / (bbox[3] - bbox[1] + 2 * CANVAS_MARGIN))
-            if abs(scale_factor - 1.0) < 1e-6:
-                break
-            self._update_scale(scale_factor)
+    def _resize_to_fit(self, width, height):
+        bbox = self.bbox("all")
+        scale_factor = min(width / (bbox[2] - bbox[0] + 2 * CANVAS_MARGIN),
+                           height / (bbox[3] - bbox[1] + 2 * CANVAS_MARGIN))
+        self._update_scale(scale_factor)
 
     def _update_scale(self, scale_factor):
         self.scale("all", 0, 0, scale_factor, scale_factor)
@@ -67,3 +62,7 @@ class ZoomPanCanvas(Canvas):
             scaled_center_y = center_y * scale_factor
             self.move(item, scaled_center_x - center_x, scaled_center_y - center_y)
             self.scale(item, 0, 0, 1 / scale_factor, 1 / scale_factor)
+
+    def delete(self, *args):
+        super().delete(*args)
+        self._reset_view()
