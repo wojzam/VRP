@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from tabulate import tabulate
 
 from genetic_algorithm.strategies import *
 from model import Model
@@ -20,14 +21,14 @@ class Analysis:
             std_scores = []
 
             for generations in generations_range:
-                print(f"==== Testing: {self.get_name(crossover_method)} in {generations} generations ===")
                 results = self.get_results(iterations, generations=generations, crossover_method=crossover_method)
-                best_score, mean_score, std_score = self.retrieve_scores(results)
+                best_score, mean_score, std_score = self.calculate_scores_statistics(results)
                 best_scores.append(best_score)
                 mean_scores.append(mean_score)
                 std_scores.append(std_score)
 
             self.plot_results(generations_range, best_scores, mean_scores, std_scores, self.get_name(crossover_method))
+            self.print_table(generations_range, best_scores, mean_scores, std_scores, self.get_name(crossover_method))
 
     def generate_problem(self, customer_count=DEFAULT_CUSTOMER_COUNT):
         self.model.generate_customers(customer_count)
@@ -46,17 +47,9 @@ class Analysis:
         return crossover_method.__name__.replace("_", " ")
 
     @staticmethod
-    def retrieve_scores(results):
+    def calculate_scores_statistics(results):
         scores = [result.score for result in results]
-        best_score = np.min(scores)
-        mean_score = np.mean(scores)
-        std_score = np.std(scores)
-
-        print(f"Best Score: {best_score}")
-        print(f"Mean Score: {mean_score}")
-        print(f"Std. Deviation Score: {std_score}")
-
-        return best_score, mean_score, std_score
+        return np.min(scores), np.mean(scores), np.std(scores)
 
     @staticmethod
     def plot_results(generations_range, best_scores, mean_scores, std_scores, method_name):
@@ -71,8 +64,19 @@ class Analysis:
         plt.grid(True)
         plt.show()
 
+    @staticmethod
+    def print_table(generations_range, best_scores, mean_scores, std_scores, method_name):
+        data = {
+            "Generations": generations_range,
+            "Best Score": np.round(best_scores, 2),
+            "Mean Score": np.round(mean_scores, 2),
+            "Std. Score": np.round(std_scores, 2),
+        }
+        print(f"\n=== Results for {method_name} ===")
+        print(tabulate(data, headers="keys"))
+
 
 if __name__ == "__main__":
     analysis = Analysis()
-    analysis.run([10, 50, 100, 200, 400],
+    analysis.run([10, 50, 100, 200, 500],
                  [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover])
