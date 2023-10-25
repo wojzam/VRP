@@ -16,17 +16,9 @@ class Analysis:
         self.generate_problem()
 
         for crossover_method in crossover_methods:
-            best_scores = []
-            mean_scores = []
-            std_scores = []
-
             results = self.get_results(iterations, generations=max(generation_range), crossover_method=crossover_method)
-
-            for generation in generation_range:
-                best_score, mean_score, std_score = self.calculate_scores_statistics(results, generation)
-                best_scores.append(best_score)
-                mean_scores.append(mean_score)
-                std_scores.append(std_score)
+            best_scores, mean_scores, std_scores = zip(
+                *(self.calculate_scores_statistics(results, gen) for gen in generation_range))
 
             self.plot_results(generation_range, best_scores, mean_scores, std_scores, self.get_name(crossover_method))
             self.print_table(generation_range, best_scores, mean_scores, std_scores, self.get_name(crossover_method))
