@@ -12,7 +12,7 @@ class Analysis:
         np.random.seed(0)
         self.model = Model()
 
-    def run(self, generations_range, crossover_methods, iterations=10):
+    def run(self, generation_range, crossover_methods, iterations=10):
         self.generate_problem()
 
         for crossover_method in crossover_methods:
@@ -20,15 +20,16 @@ class Analysis:
             mean_scores = []
             std_scores = []
 
-            for generations in generations_range:
-                results = self.get_results(iterations, generations=generations, crossover_method=crossover_method)
-                best_score, mean_score, std_score = self.calculate_scores_statistics(results)
+            results = self.get_results(iterations, generations=max(generation_range), crossover_method=crossover_method)
+
+            for generation in generation_range:
+                best_score, mean_score, std_score = self.calculate_scores_statistics(results, generation)
                 best_scores.append(best_score)
                 mean_scores.append(mean_score)
                 std_scores.append(std_score)
 
-            self.plot_results(generations_range, best_scores, mean_scores, std_scores, self.get_name(crossover_method))
-            self.print_table(generations_range, best_scores, mean_scores, std_scores, self.get_name(crossover_method))
+            self.plot_results(generation_range, best_scores, mean_scores, std_scores, self.get_name(crossover_method))
+            self.print_table(generation_range, best_scores, mean_scores, std_scores, self.get_name(crossover_method))
 
     def generate_problem(self, customer_count=DEFAULT_CUSTOMER_COUNT):
         self.model.generate_customers(customer_count)
@@ -47,8 +48,8 @@ class Analysis:
         return crossover_method.__name__.replace("_", " ")
 
     @staticmethod
-    def calculate_scores_statistics(results):
-        scores = [result.score for result in results]
+    def calculate_scores_statistics(results, generation=0):
+        scores = [result.best_scores_history[generation - 1] for result in results]
         return np.min(scores), np.mean(scores), np.std(scores)
 
     @staticmethod
@@ -65,9 +66,9 @@ class Analysis:
         plt.show()
 
     @staticmethod
-    def print_table(generations_range, best_scores, mean_scores, std_scores, method_name):
+    def print_table(generation_range, best_scores, mean_scores, std_scores, method_name):
         data = {
-            "Generations": generations_range,
+            "Generation": generation_range,
             "Best Score": np.round(best_scores, 2),
             "Mean Score": np.round(mean_scores, 2),
             "Std. Score": np.round(std_scores, 2),

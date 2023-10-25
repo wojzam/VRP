@@ -78,10 +78,12 @@ class Model:
         try:
             ga = GA(len(self.customers), vehicles_count, distance_factor, time_factor, self.calculate_total_distance)
             start_time = measure_time()
-            solution, distance, time, score = ga.evolve(size, generations, pc, pm, crossover_method, show_plot)
+            solution, distance, time, score, best_scores_history = ga.evolve(size, generations, pc, pm,
+                                                                             crossover_method, show_plot)
             exec_time = measure_time() - start_time
 
-            self.result_history.add(Result(self.calculate_routes_vectors(solution), distance, time, score, exec_time))
+            self.result_history.add(
+                Result(self.calculate_routes_vectors(solution), distance, time, score, best_scores_history, exec_time))
 
             if output:
                 print("Solution: ", solution)
@@ -121,11 +123,12 @@ class Model:
 
 class Result:
 
-    def __init__(self, routes=None, distance=0., time=0., score=0., execution_time=0.):
+    def __init__(self, routes=None, distance=0., time=0., score=0., best_scores_history=None, execution_time=0.):
         self.routes = routes if routes is not None else []
         self.distance = distance
         self.time = time
         self.score = score
+        self.best_scores_history = best_scores_history if best_scores_history is not None else []
         self.execution_time = execution_time
 
 
