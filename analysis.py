@@ -1,6 +1,7 @@
 import os
 
 import matplotlib.pyplot as plt
+import optuna
 import pandas as pd
 
 from genetic_algorithm.strategies import *
@@ -25,8 +26,24 @@ class Analysis:
             args = range(1, generations + 1), best_scores, mean_scores, std_scores, crossover_method
             self.plot_results(*args)
             self.save_to_file(*args)
+    def optimize_hyperparameters(self, generations, crossover_method, iterations=DEFAULT_ITERATIONS, n_trials=100):
+        self._generate_problem()
 
     def generate_problem(self, customer_count=DEFAULT_CUSTOMER_COUNT):
+        def objective(trial):
+            pc = trial.suggest_float('pc', 0.3, 0.8)
+            pm = trial.suggest_float('pm', 0.01, 0.3)
+            results = self._get_results(iterations, generations=generations, pc=pc, pm=pm,
+                                        crossover_method=crossover_method)
+
+            best_score, mean_score, std_score = self._calculate_scores_statistics(results)
+            return best_score + mean_score
+
+        study = optuna.create_study()
+        study.optimize(objective, n_trials=n_trials)
+
+        print(study.best_params)
+
         self.model.generate_customers(customer_count)
 
     def get_results(self, iterations, output=False, **kwargs):
@@ -72,4 +89,9 @@ class Analysis:
 
 if __name__ == "__main__":
     analysis = Analysis()
+
+    # Example 1
     analysis.run(800, [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover])
+
+    # Example 2
+    # analysis.optimize_hyperparameters(500, order_crossover)
