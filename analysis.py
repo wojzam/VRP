@@ -67,6 +67,25 @@ class Analysis:
         return np.min(scores), np.mean(scores), np.std(scores)
 
     @staticmethod
+    def measure_crossover_impact(population_size=100, iterations=1000):
+        def impact(arr1, arr2):
+            return 1.0 - np.mean(arr1 == arr2)
+
+        print("Impact on the offsprings")
+        print("|".join(f"{header:^17}" for header in ["p1 - o1", "p1 - o2", "p2 - o1", "p2 - o2", "name"]))
+        for crossover in [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover]:
+            total_impacts = []
+
+            for _ in range(iterations):
+                p1, p2 = np.random.permutation(population_size), np.random.permutation(population_size)
+                o1, o2 = crossover(p1, p2)
+                total_impacts.append([impact(p1, o1), impact(p1, o2), impact(p2, o1), impact(p2, o2)])
+
+            mean_std = [f'{np.mean(np.array(total_impacts)[:, i]):7.2%} ± {np.std(np.array(total_impacts)[:, i]):6.2%}'
+                        for i in range(4)]
+            print(" |".join(mean_std), "|", pretty_name(crossover))
+
+    @staticmethod
     def _plot_scores(generations, best_scores, mean_scores, std_scores, method):
         plt.figure(figsize=(10, 5))
         plt.plot(generations, best_scores, label='Best Score')
@@ -76,7 +95,7 @@ class Analysis:
         plt.errorbar(generations[-1], mean_scores[-1], yerr=std_scores[-1], fmt='o', color="C3")
         plt.xlabel('Generation')
         plt.ylabel('Score')
-        plt.title(f'Scores vs. Generation ({method.__name__.replace("_", " ")})')
+        plt.title(f'Scores vs. Generation ({pretty_name(method)})')
         plt.legend()
         plt.grid(True)
         plt.show()
@@ -85,7 +104,7 @@ class Analysis:
     def _plot_method_comparison(generations, scores_methods):
         plt.figure(figsize=(10, 5))
         for method, scores in scores_methods:
-            plt.plot(generations, scores, label=method.__name__.replace("_", " "))
+            plt.plot(generations, scores, label=pretty_name(method))
         plt.xlabel('Generation')
         plt.ylabel('Mean Score')
         plt.title('Scores mean comparison')
@@ -105,6 +124,10 @@ class Analysis:
         df.to_csv(os.path.join(directory, f"{method.__name__}.csv"), index=False)
 
 
+def pretty_name(crossover_method):
+    return crossover_method.__name__.replace("_", " ")
+
+
 if __name__ == "__main__":
     analysis = Analysis()
 
@@ -114,3 +137,6 @@ if __name__ == "__main__":
 
     # Example 2
     # analysis.optimize_hyperparameters(500, order_crossover)
+
+    # Example 3
+    analysis.measure_crossover_impact()
