@@ -11,6 +11,8 @@ from model import Model
 class Analysis:
     DEFAULT_CUSTOMER_COUNT = 15
     DEFAULT_ITERATIONS = 10
+    RESULTS_DIRECTORY = "analysis_results"
+    ALL_CROSSOVER_METHODS = [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover]
 
     def __init__(self, seed=0):
         np.random.seed(seed)
@@ -73,7 +75,7 @@ class Analysis:
 
         print("Impact on the offsprings")
         print("|".join(f"{header:^17}" for header in ["p1 - o1", "p1 - o2", "p2 - o1", "p2 - o2", "name"]))
-        for crossover in [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover]:
+        for crossover in Analysis.ALL_CROSSOVER_METHODS:
             total_impacts = []
 
             for _ in range(iterations):
@@ -129,7 +131,7 @@ class Analysis:
         plt.show()
 
     @staticmethod
-    def _save_to_file(generations, best_scores, mean_scores, std_scores, file_name, directory="analysis_results"):
+    def _save_to_file(generations, best_scores, mean_scores, std_scores, file_name, directory=RESULTS_DIRECTORY):
         os.makedirs(directory, exist_ok=True)
         df = pd.DataFrame({
             "Generation": generations,
@@ -140,7 +142,7 @@ class Analysis:
         df.to_csv(os.path.join(directory, f"{file_name}.csv"), index=False)
 
     @staticmethod
-    def _read_file(file_name, directory="analysis_results"):
+    def _read_file(file_name, directory=RESULTS_DIRECTORY):
         file_path = os.path.join(directory, f"{file_name}.csv")
 
         if not os.path.exists(file_path):
@@ -158,11 +160,10 @@ if __name__ == "__main__":
     analysis = Analysis()
 
     # Example 1
-    analysis.run(800,
-                 [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover])
+    analysis.run(800, Analysis.ALL_CROSSOVER_METHODS)
 
     # Example 2
     # analysis.optimize_hyperparameters(500, order_crossover)
 
     # Example 3
-    # analysis.measure_crossover_impact()
+    analysis.measure_crossover_impact()
