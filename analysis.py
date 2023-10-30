@@ -20,17 +20,17 @@ class Analysis:
         self._generate_problem()
         method_scores = []
 
-        for crossover_method in crossover_methods:
-            results = self._get_results(iterations, generations=generations, crossover_method=crossover_method)
+        for method in crossover_methods:
+            results = self._get_results(iterations, generations=generations, crossover_method=method)
             best_scores, mean_scores, std_scores = zip(
                 *(self._calculate_scores_statistics(results, gen) for gen in range(generations)))
 
-            method_scores.append((crossover_method, mean_scores))
-            args = range(1, generations + 1), best_scores, mean_scores, std_scores, crossover_method
-            self._plot_scores(*args)
-            self._save_to_file(*args)
+            method_scores.append((pretty_name(method), mean_scores))
 
-        self._plot_method_comparison(range(1, generations + 1), method_scores)
+            self._plot_scores(range(1, generations + 1), best_scores, mean_scores, std_scores, pretty_name(method))
+            self._save_to_file(range(1, generations + 1), best_scores, mean_scores, std_scores, method.__name__)
+
+        self._plot_method_comparison(method_scores)
 
     def optimize_hyperparameters(self, generations, crossover_method, iterations=DEFAULT_ITERATIONS, n_trials=100):
         self._generate_problem()
@@ -86,7 +86,23 @@ class Analysis:
             print(" |".join(mean_std), "|", pretty_name(crossover))
 
     @staticmethod
-    def _plot_scores(generations, best_scores, mean_scores, std_scores, method):
+    def plot_scores_from_file(file):
+        generations, best_scores, mean_scores, std_scores = analysis._read_file(file)
+        Analysis._plot_scores(generations, best_scores, mean_scores, std_scores, file.replace("_", " "))
+
+    @staticmethod
+    def plot_method_comparison_from_files(files):
+        method_scores = []
+
+        for file in files:
+            generations, best_scores, mean_scores, std_scores = analysis._read_file(file)
+            method_scores.append((file, mean_scores))
+
+        if method_scores:
+            Analysis._plot_method_comparison(method_scores)
+
+    @staticmethod
+    def _plot_scores(generations, best_scores, mean_scores, std_scores, method_name):
         plt.figure(figsize=(10, 5))
         plt.plot(generations, best_scores, label='Best Score')
         plt.plot(generations, mean_scores, label='Mean Score')
@@ -95,16 +111,16 @@ class Analysis:
         plt.errorbar(generations[-1], mean_scores[-1], yerr=std_scores[-1], fmt='o', color="C3")
         plt.xlabel('Generation')
         plt.ylabel('Score')
-        plt.title(f'Scores vs. Generation ({pretty_name(method)})')
+        plt.title(f'Scores vs. Generation ({method_name})')
         plt.legend()
         plt.grid(True)
         plt.show()
 
     @staticmethod
-    def _plot_method_comparison(generations, scores_methods):
+    def _plot_method_comparison(scores_methods):
         plt.figure(figsize=(10, 5))
-        for method, scores in scores_methods:
-            plt.plot(generations, scores, label=pretty_name(method))
+        for method_name, scores in scores_methods:
+            plt.plot(range(1, len(scores) + 1), scores, label=method_name)
         plt.xlabel('Generation')
         plt.ylabel('Mean Score')
         plt.title('Scores mean comparison')
@@ -113,7 +129,7 @@ class Analysis:
         plt.show()
 
     @staticmethod
-    def _save_to_file(generations, best_scores, mean_scores, std_scores, method, directory="analysis_results"):
+    def _save_to_file(generations, best_scores, mean_scores, std_scores, file_name, directory="analysis_results"):
         os.makedirs(directory, exist_ok=True)
         df = pd.DataFrame({
             "Generation": generations,
@@ -121,7 +137,17 @@ class Analysis:
             "Mean Score": np.round(mean_scores, 2),
             "Std. Score": np.round(std_scores, 2),
         })
-        df.to_csv(os.path.join(directory, f"{method.__name__}.csv"), index=False)
+        df.to_csv(os.path.join(directory, f"{file_name}.csv"), index=False)
+
+    @staticmethod
+    def _read_file(file_name, directory="analysis_results"):
+        file_path = os.path.join(directory, f"{file_name}.csv")
+
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"CSV file {file_path} not found.")
+
+        df = pd.read_csv(file_path)
+        return tuple(df[column].tolist() for column in df.columns)
 
 
 def pretty_name(crossover_method):
@@ -139,4 +165,4 @@ if __name__ == "__main__":
     # analysis.optimize_hyperparameters(500, order_crossover)
 
     # Example 3
-    analysis.measure_crossover_impact()
+    # analysis.measure_crossover_impact()
