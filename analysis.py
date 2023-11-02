@@ -12,7 +12,8 @@ class Analysis:
     DEFAULT_CUSTOMER_COUNT = 15
     DEFAULT_ITERATIONS = 10
     RESULTS_DIRECTORY = "analysis_results"
-    ALL_CROSSOVER_METHODS = [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover]
+    ALL_CROSSOVER_METHODS = [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover,
+                             edge_recombination_crossover]
 
     def __init__(self, seed=0):
         np.random.seed(seed)

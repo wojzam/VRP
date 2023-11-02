@@ -95,6 +95,34 @@ def partially_mapped_crossover(parent1, parent2):
     return one_offspring(parent1, parent2), one_offspring(parent2, parent1)
 
 
+def edge_recombination_crossover(parent1, parent2):
+    size = len(parent1)
+    edges = {}
+
+    for i, v in enumerate(parent1):
+        j = np.where(parent2 == v)[0][0]
+        edges[v] = [parent1[(i - 1) % size], parent1[(i + 1) % size],
+                    parent2[(j - 1) % size], parent2[(j + 1) % size]]
+
+    def one_offspring(parent):
+        offspring = np.empty(size, dtype=int)
+        missing = list(parent[1:])
+        offspring[0] = parent[0]
+        node = parent[0]
+
+        for index in range(1, size):
+            nodes = np.array(edges[node])
+            nodes = nodes[np.in1d(nodes, missing)]
+            next_node = np.random.choice(nodes) if nodes.size else np.random.choice(missing)
+            offspring[index] = next_node
+            node = next_node
+            missing.remove(next_node)
+
+        return offspring
+
+    return one_offspring(parent1), one_offspring(parent2)
+
+
 def shuffle_mutation(individual):
     size = len(individual)
     indices = np.random.choice([True, False], size)
