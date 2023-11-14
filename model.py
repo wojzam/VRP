@@ -17,7 +17,7 @@ class Model:
     DEFAULT_PC = 0.7
     DEFAULT_PM = 0.1
     DEFAULT_DISTANCE_FACTOR = 1.
-    DEFAULT_TIME_FACTOR = 2.
+    DEFAULT_TIME_FACTOR = 1.
     DEFAULT_CROSSOVER_METHOD = order_crossover
 
     customers = []
