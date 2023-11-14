@@ -1,7 +1,7 @@
 import colorsys
-import tkinter as tk
 from tkinter import ttk, filedialog
 
+from controller import Controller
 from model import Model
 from view.tabs import OptimizationTab, EnvironmentTab, ViewTab
 from view.zoom_pan_canvas import ZoomPanCanvas
@@ -12,9 +12,10 @@ class GUI:
     DEPOT_RADIUS = 8
     ARROW_SHAPE = (16, 18, 5)
 
-    def __init__(self, model: Model):
+    def __init__(self, model: Model, controller: Controller, root):
         self.model = model
-        root = tk.Tk()
+        self.controller = controller
+
         root.title("VRP Optimization")
         self.canvas = ZoomPanCanvas(root, bg="white")
         self.canvas.pack(side="left", expand=True, fill="both")
@@ -22,53 +23,13 @@ class GUI:
         tabs = ttk.Notebook(root)
         tabs.pack(side="right", fill="y")
 
-        self.optimization_tab = OptimizationTab(tabs, self.generate_routes, self.navigate_result_history, pady=20)
-        self.environment_tab = EnvironmentTab(tabs, self.save_customers, self.read_customers, self.generate_customers,
-                                              self.generate_customers_along_the_lines, self.update_depot_position,
-                                              pady=20)
-        self.view_tab = ViewTab(tabs, self.update_canvas, self.canvas.recenter, pady=20)
+        self.optimization_tab = OptimizationTab(tabs, controller, pady=20)
+        self.environment_tab = EnvironmentTab(tabs, controller, pady=20)
+        self.view_tab = ViewTab(tabs, controller, pady=20)
 
         tabs.add(self.optimization_tab, text="Optimization")
         tabs.add(self.environment_tab, text="Environment")
         tabs.add(self.view_tab, text="View")
-
-        self.generate_customers()
-        self.generate_routes()
-        root.mainloop()
-
-    def generate_customers(self):
-        self.model.generate_customers(self.environment_tab.get_customers_count(),
-                                      self.environment_tab.get_customer_class())
-        self.update_canvas()
-
-    def generate_customers_along_the_lines(self):
-        self.model.generate_customers_along_the_lines(self.environment_tab.get_per_line_count(),
-                                                      self.environment_tab.get_lines_count())
-        self.update_canvas()
-
-    def generate_routes(self):
-        self.model.generate_routes(
-            self.optimization_tab.get_vehicles_count(),
-            self.optimization_tab.get_size(),
-            self.optimization_tab.get_generations_count(),
-            self.optimization_tab.get_pc(),
-            self.optimization_tab.get_pm(),
-            self.optimization_tab.get_distance_factor(),
-            self.optimization_tab.get_time_factor(),
-            self.optimization_tab.get_crossover_method()
-        )
-        self.update_canvas()
-
-    def navigate_result_history(self, index_change):
-        def inner():
-            self.model.result_history.navigate(index_change)
-            self.update_canvas()
-
-        return inner
-
-    def update_depot_position(self):
-        self.model.set_depot_position(*self.environment_tab.get_depot_position())
-        self.update_canvas()
 
     def update_canvas(self):
         self.canvas.delete("all")
@@ -104,16 +65,13 @@ class GUI:
                                 outline="gray", fill=color, tags="fixed_scale")
         self.canvas.create_text(point.x, point.y, text=text, fill=text_color)
 
-    def read_customers(self):
-        file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
-        if file_path:
-            self.model.read_customers(file_path)
-            self.update_canvas()
+    @staticmethod
+    def ask_open_file_dialog():
+        return filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
 
-    def save_customers(self):
-        file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV Files", "*.csv")])
-        if file_path:
-            self.model.save_customers(file_path)
+    @staticmethod
+    def ask_save_as_file_dialog():
+        return filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV Files", "*.csv")])
 
     @staticmethod
     def generate_colors(count):

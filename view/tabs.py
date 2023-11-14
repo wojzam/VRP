@@ -18,8 +18,9 @@ class OptimizationTab(Frame):
     CROSSOVER_METHODS = {OX1: order_crossover, OX2: order_based_crossover, POS: position_based_crossover,
                          CX: cycle_crossover, PMX: partially_mapped_crossover, ERX: edge_recombination_crossover}
 
-    def __init__(self, master, generate_routes, navigate_result_history, *args, **kwargs):
+    def __init__(self, master, controller, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
+        self.controller = controller
 
         self._vehicles_count_input = IntInput(self, "Vehicles:", 0, 99, Model.DEFAULT_VEHICLES_COUNT)
         row1_frame, row2_frame, row3_frame = Frame(self), Frame(self), Frame(self)
@@ -33,14 +34,14 @@ class OptimizationTab(Frame):
         self._crossover_method = ttk.Combobox(self, state="readonly",
                                               values=[self.OX1, self.OX2, self.POS, self.CX, self.PMX, self.ERX])
         self._crossover_method.set(self.OX1)
-        Button(self, text="Run", command=generate_routes)
+        Button(self, text="Run", command=self.generate_routes)
 
         self.result_frame = ttk.LabelFrame(self, text="Result")
         self._result_info = Label(self.result_frame, justify="left")
         navigation_frame = Frame(self.result_frame)
-        Button(navigation_frame, text="⬅", command=navigate_result_history(-1))
+        Button(navigation_frame, text="⬅", command=controller.navigate_result_history(-1))
         self.pagination_indicator = Label(navigation_frame, text="")
-        Button(navigation_frame, text="➡", command=navigate_result_history(1))
+        Button(navigation_frame, text="➡", command=controller.navigate_result_history(1))
 
         pack_children_of(self)
         pack_children_of(row3_frame, padx=0, pady=0, side="left")
@@ -59,26 +60,17 @@ class OptimizationTab(Frame):
             self._result_info.config(text=self.retrieve_result_info_text(model.result))
             self.pagination_indicator.config(text=model.get_pagination_indicator())
 
-    def get_vehicles_count(self):
-        return self._vehicles_count_input.get_value()
-
-    def get_size(self):
-        return self._size_input.get_value()
-
-    def get_generations_count(self):
-        return self._generations_input.get_value()
-
-    def get_pc(self):
-        return self._pc_input.get_value()
-
-    def get_pm(self):
-        return self._pm_input.get_value()
-
-    def get_distance_factor(self):
-        return self._distance_factor_input.get_value()
-
-    def get_time_factor(self):
-        return self._time_factor_input.get_value()
+    def generate_routes(self):
+        self.controller.generate_routes(
+            self._vehicles_count_input.get_value(),
+            self._size_input.get_value(),
+            self._generations_input.get_value(),
+            self._pc_input.get_value(),
+            self._pm_input.get_value(),
+            self._distance_factor_input.get_value(),
+            self._time_factor_input.get_value(),
+            self.get_crossover_method()
+        )
 
     def get_crossover_method(self):
         return self.CROSSOVER_METHODS[self._crossover_method.get()]
@@ -99,30 +91,30 @@ class EnvironmentTab(Frame):
     ONE_TO_ONE = "one to one"
     DELIVERY_TYPE_TO_CUSTOMER = {ONE_TO_ALL: Customer, ONE_TO_ONE: CustomerPair}
 
-    def __init__(self, master, save_file, read_file, generate_targets, generate_on_line, update_depot_position, *args,
-                 **kwargs):
+    def __init__(self, master, controller, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
+        self.controller = controller
 
         customers_file_frame = ttk.LabelFrame(self, text="Customers file")
-        Button(customers_file_frame, command=read_file, text="Read")
-        Button(customers_file_frame, command=save_file, text="Save")
+        Button(customers_file_frame, command=controller.read_customers, text="Read")
+        Button(customers_file_frame, command=controller.save_customers, text="Save")
 
         depot_position_frame = ttk.LabelFrame(self, text="Depot position")
         self._depot_x_input = IntInput(depot_position_frame, "x:", -9999, 9999, 0)
         self._depot_y_input = IntInput(depot_position_frame, "y:", -9999, 9999, 0)
-        Button(depot_position_frame, text="Update", command=update_depot_position)
+        Button(depot_position_frame, text="Update", command=self.update_depot_position)
 
         random_frame = ttk.LabelFrame(self, text="Random customers")
         self._delivery_type = ttk.Combobox(random_frame, state="readonly", values=[self.ONE_TO_ALL, self.ONE_TO_ONE])
         self._delivery_type.set(self.ONE_TO_ALL)
         self._customer_count_input = IntInput(random_frame, "Customers:", 0, 999, Model.DEFAULT_CUSTOMERS_COUNT)
-        Button(random_frame, text="Generate", command=generate_targets)
+        Button(random_frame, text="Generate", command=self.generate_customers)
 
         along_lines_frame = ttk.LabelFrame(self, text="Customers along the lines")
         lines_input_row_frame = Frame(along_lines_frame)
         self._per_line_input = IntInput(lines_input_row_frame, "Per line:", 0, 99, Model.DEFAULT_PER_LINE_COUNT)
         self._lines_count_input = IntInput(lines_input_row_frame, "Lines:", 0, 99, Model.DEFAULT_LINES_COUNT)
-        Button(along_lines_frame, text="Generate", command=generate_on_line)
+        Button(along_lines_frame, text="Generate", command=self.generate_customers_along_the_lines)
 
         pack_children_of(self)
         pack_children_of(customers_file_frame, padx=5, pady=0, side="left", expand=True)
@@ -131,29 +123,28 @@ class EnvironmentTab(Frame):
         pack_children_of(along_lines_frame)
         pack_children_of(lines_input_row_frame, padx=5, pady=0, side="left", expand=True)
 
-    def get_depot_position(self):
-        return self._depot_x_input.get_value(), self._depot_y_input.get_value()
+    def generate_customers(self):
+        self.controller.generate_customers(self._customer_count_input.get_value(),
+                                           self.get_customer_class())
+
+    def generate_customers_along_the_lines(self):
+        self.controller.generate_customers_along_the_lines(self._per_line_input.get_value(),
+                                                           self._lines_count_input.get_value())
+
+    def update_depot_position(self):
+        self.controller.update_depot_position(self._depot_x_input.get_value(), self._depot_y_input.get_value())
 
     def get_customer_class(self):
         return self.DELIVERY_TYPE_TO_CUSTOMER[self._delivery_type.get()]
 
-    def get_customers_count(self):
-        return self._customer_count_input.get_value()
-
-    def get_per_line_count(self):
-        return self._per_line_input.get_value()
-
-    def get_lines_count(self):
-        return self._lines_count_input.get_value()
-
 
 class ViewTab(Frame):
-    def __init__(self, master, update_canvas, recenter, *args, **kwargs):
+    def __init__(self, master, controller, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self._show_routes = BooleanVar(value=True)
-        Checkbutton(self, text="Show routes", variable=self._show_routes, command=update_canvas)
-        Button(self, text="Recenter", command=recenter)
+        Checkbutton(self, text="Show routes", variable=self._show_routes, command=controller.update_view)
+        Button(self, text="Recenter", command=controller.recenter)
 
         pack_children_of(self)
 
