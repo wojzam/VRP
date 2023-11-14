@@ -1,8 +1,6 @@
 from time import time as measure_time
 
-import numpy as np
-
-from file_manager import *
+from customers import *
 from genetic_algorithm import GA
 from genetic_algorithm.strategies import order_crossover
 
