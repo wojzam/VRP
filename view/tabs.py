@@ -1,8 +1,7 @@
 from tkinter import Button, Checkbutton, Frame, Label, BooleanVar
 from tkinter import ttk
 
-from customer import Customer
-from customer_pair import CustomerPair
+from customers import Customer, CustomerPair
 from genetic_algorithm.strategies import *
 from model import Model, Result
 from view.input import IntInput, FloatInput

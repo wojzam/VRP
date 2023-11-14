@@ -1,8 +1,6 @@
 import csv
 
-from customer import Customer
-from customer_pair import CustomerPair
-from point import Point
+from customers import Point, Customer, CustomerPair
 
 
 def write_customers_to_file(customers, column_names, file):
