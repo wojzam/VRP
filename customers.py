@@ -2,10 +2,11 @@ import math
 
 import numpy as np
 
-from constants import *
-
 
 class Point:
+    MAX_RANDOM_X = 400
+    MAX_RANDOM_Y = 300
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -17,8 +18,8 @@ class Point:
 
     @classmethod
     def random(cls):
-        return cls(np.random.randint(-CANVAS_WIDTH / 2, CANVAS_WIDTH / 2),
-                   np.random.randint(-CANVAS_HEIGHT / 2, CANVAS_HEIGHT / 2))
+        return cls(np.random.randint(-Point.MAX_RANDOM_X, Point.MAX_RANDOM_X),
+                   np.random.randint(-Point.MAX_RANDOM_Y, Point.MAX_RANDOM_Y))
 
     def __str__(self):
         return f"({self.x}, {self.y})"

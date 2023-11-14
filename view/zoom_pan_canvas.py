@@ -1,9 +1,11 @@
 from tkinter import Canvas
 
-from constants import *
-
 
 class ZoomPanCanvas(Canvas):
+    CANVAS_WIDTH = 800
+    CANVAS_HEIGHT = 600
+    CANVAS_MARGIN = 50
+
     def __init__(self, master, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, *args, **kwargs):
         super().__init__(master, *args, **kwargs, width=width, height=height)
 
@@ -41,10 +43,10 @@ class ZoomPanCanvas(Canvas):
         self.scan_mark(0, 0)
         self.scan_dragto((width - (bbox[0] + bbox[2])) // 2, (height - (bbox[1] + bbox[3])) // 2, gain=1)
 
-    def _resize_to_fit(self, width, height):
+    def _resize_to_fit(self, width, height, margin=CANVAS_MARGIN):
         bbox = self.bbox("all")
-        scale_factor = min(width / (bbox[2] - bbox[0] + 2 * CANVAS_MARGIN),
-                           height / (bbox[3] - bbox[1] + 2 * CANVAS_MARGIN))
+        scale_factor = min(width / (bbox[2] - bbox[0] + 2 * margin),
+                           height / (bbox[3] - bbox[1] + 2 * margin))
         self._update_scale(scale_factor)
 
     def _update_scale(self, scale_factor):
