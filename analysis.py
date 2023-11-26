@@ -10,14 +10,16 @@ from model import Model
 class Analysis:
     GENERATIONS = 100
     TEST_ITERATIONS = 10
-    RESULTS_DIRECTORY = "analysis_results"
     ALL_CROSSOVER_METHODS = [order_crossover, order_based_crossover, position_based_crossover,
                              partially_mapped_crossover, cycle_crossover, edge_recombination_crossover]
 
-    def __init__(self, customer_count=15, vehicles_count=3):
+    def __init__(self, customer_count=15, vehicles_count=3, results_directory=None):
         self.model = Model()
         self.customer_count = customer_count
         self.vehicles_count = vehicles_count
+        self.results_directory = results_directory
+        if results_directory is None:
+            self.results_directory = f"analysis_results_cus{customer_count}_veh{vehicles_count}"
 
     def analyse_crossovers(self, crossover_methods, iterations=TEST_ITERATIONS, generations=GENERATIONS, **kwargs):
         self._generate_problem()
@@ -163,14 +165,12 @@ class Analysis:
         plt.grid(True)
         plt.show()
 
-    @staticmethod
-    def _save_to_file(dictionary, file_name, directory=RESULTS_DIRECTORY):
-        os.makedirs(directory, exist_ok=True)
-        pd.DataFrame(dictionary).round(2).to_csv(os.path.join(directory, f"{file_name}.csv"), index=False)
+    def _save_to_file(self, dictionary, file_name):
+        os.makedirs(self.results_directory, exist_ok=True)
+        pd.DataFrame(dictionary).round(2).to_csv(os.path.join(self.results_directory, f"{file_name}.csv"), index=False)
 
-    @staticmethod
-    def _read_file(file_name, directory=RESULTS_DIRECTORY):
-        file_path = os.path.join(directory, f"{file_name}.csv")
+    def _read_file(self, file_name):
+        file_path = os.path.join(self.results_directory, f"{file_name}.csv")
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"CSV file {file_path} not found.")
