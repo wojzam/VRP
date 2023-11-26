@@ -23,9 +23,9 @@ class GA:
         best_score = result[min_index][0]
         best_distance = result[min_index][1]
         best_time = result[min_index][2]
-        global_best_scores = []
-        best_scores = []
-        mean_scores = []
+        global_best_scores = [best_score]
+        best_scores = [best_score]
+        mean_scores = [np.average(scores)]
 
         for _ in range(generations):
             pop = self.selection(pop, scores=scores)
