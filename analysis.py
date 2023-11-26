@@ -14,9 +14,10 @@ class Analysis:
     ALL_CROSSOVER_METHODS = [order_crossover, order_based_crossover, position_based_crossover,
                              partially_mapped_crossover, cycle_crossover, edge_recombination_crossover]
 
-    def __init__(self, customer_count=15):
+    def __init__(self, customer_count=15, vehicles_count=3):
         self.model = Model()
         self.customer_count = customer_count
+        self.vehicles_count = vehicles_count
 
     def analyse_crossovers(self, crossover_methods, iterations=TEST_ITERATIONS, generations=GENERATIONS, **kwargs):
         self._generate_problem()
@@ -41,7 +42,7 @@ class Analysis:
 
     def analyse_pc_impact(self, crossover_methods, iterations=TEST_ITERATIONS, generations=GENERATIONS, **kwargs):
         self._generate_problem()
-        probabilities = np.arange(0.0, 1.0, 0.1)
+        probabilities = np.arange(0.0, 1.1, 0.1)
         method_final_scores = []
 
         for method in crossover_methods:
@@ -66,7 +67,7 @@ class Analysis:
 
         for i in range(iterations):
             np.random.seed(i)
-            self.model.generate_routes(output=output, show_plot=output, **kwargs)
+            self.model.generate_routes(output=output, show_plot=output, vehicles_count=self.vehicles_count, **kwargs)
             results.append(self.model.result)
 
         return results
@@ -183,12 +184,12 @@ def pretty_name(crossover_method):
 
 
 if __name__ == "__main__":
-    analysis = Analysis()
+    analysis = Analysis(customer_count=15, vehicles_count=3)
     analyzed_crossover_methods = [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover]
     file_names = [method.__name__ for method in analyzed_crossover_methods]
 
     # Example 1
-    # analysis.analyse_crossovers(analyzed_crossover_methods, generations=50)
+    # analysis.analyse_crossovers(analyzed_crossover_methods, generations=500)
     # analysis.plot_method_comparison_from_files(file_names)
 
     # Example 2
@@ -197,5 +198,3 @@ if __name__ == "__main__":
 
     # Example 3
     # analysis.analyse_crossover_impact_on_offsprings()
-
-
