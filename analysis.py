@@ -48,16 +48,25 @@ class Analysis:
         method_final_scores = []
 
         for method in crossover_methods:
+            best_final_scores = []
             mean_final_scores = []
+            std_final_scores = []
 
             for pc in probabilities:
                 results = self._get_results(iterations, generations=generations, crossover_method=method, pc=pc,
                                             **kwargs)
                 best_score, mean_score, std_score = self._calculate_scores_statistics(results)
+                best_final_scores.append(best_score)
                 mean_final_scores.append(mean_score)
+                std_final_scores.append(std_score)
 
             method_final_scores.append((pretty_name(method), mean_final_scores))
-            self._save_to_file({"PC": probabilities, "Mean score": mean_final_scores}, method.__name__)
+            self._save_to_file({
+                "PC": probabilities,
+                "Best Score": best_final_scores,
+                "Mean Score": mean_final_scores,
+                "Std. Score": std_final_scores},
+                method.__name__)
 
         self._plot_pc_method_comparison(probabilities, method_final_scores)
 
@@ -120,7 +129,7 @@ class Analysis:
         probabilities = []
 
         for file in files:
-            probabilities, mean_scores = analysis._read_file(file)
+            probabilities, best_scores, mean_scores, std_scores = analysis._read_file(file)
             method_final_scores.append((file, mean_scores))
 
         if method_final_scores:
