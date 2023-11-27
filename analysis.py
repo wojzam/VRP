@@ -12,6 +12,7 @@ class Analysis:
     TEST_ITERATIONS = 10
     ALL_CROSSOVER_METHODS = [order_crossover, order_based_crossover, position_based_crossover,
                              partially_mapped_crossover, cycle_crossover, edge_recombination_crossover]
+    PC_IMPACT_SUBDIRECTORY = "pc_impact"
 
     def __init__(self, customer_count=15, vehicles_count=3, results_directory=None):
         self.model = Model()
@@ -66,7 +67,8 @@ class Analysis:
                 "Best Score": best_final_scores,
                 "Mean Score": mean_final_scores,
                 "Std. Score": std_final_scores},
-                method.__name__)
+                method.__name__,
+                Analysis.PC_IMPACT_SUBDIRECTORY)
 
         self._plot_pc_method_comparison(probabilities, method_final_scores)
 
@@ -126,14 +128,14 @@ class Analysis:
     @staticmethod
     def plot_pc_method_comparison_from_files(files):
         method_final_scores = []
-        probabilities = []
+        pc = []
 
         for file in files:
-            probabilities, best_scores, mean_scores, std_scores = analysis._read_file(file)
+            pc, best_scores, mean_scores, std_scores = analysis._read_file(file, Analysis.PC_IMPACT_SUBDIRECTORY)
             method_final_scores.append((file, mean_scores))
 
         if method_final_scores:
-            Analysis._plot_pc_method_comparison(probabilities, method_final_scores)
+            Analysis._plot_pc_method_comparison(pc, method_final_scores)
 
     @staticmethod
     def _plot_scores(generations, best_scores, mean_scores, std_scores, method_name):
@@ -174,12 +176,13 @@ class Analysis:
         plt.grid(True)
         plt.show()
 
-    def _save_to_file(self, dictionary, file_name):
-        os.makedirs(self.results_directory, exist_ok=True)
-        pd.DataFrame(dictionary).round(2).to_csv(os.path.join(self.results_directory, f"{file_name}.csv"), index=False)
+    def _save_to_file(self, dictionary, file_name, subdirectory=""):
+        directory = os.path.join(self.results_directory, subdirectory)
+        os.makedirs(directory, exist_ok=True)
+        pd.DataFrame(dictionary).round(2).to_csv(os.path.join(directory, f"{file_name}.csv"), index=False)
 
-    def _read_file(self, file_name):
-        file_path = os.path.join(self.results_directory, f"{file_name}.csv")
+    def _read_file(self, file_name, subdirectory=""):
+        file_path = os.path.join(self.results_directory, subdirectory, f"{file_name}.csv")
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"CSV file {file_path} not found.")
