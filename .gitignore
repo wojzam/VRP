@@ -1,1 +1,2 @@
-/analysis_results/
+/analysis_results*/
+*.csv
