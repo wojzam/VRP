@@ -142,7 +142,7 @@ class Analysis:
         plt.figure(figsize=(10, 5))
         plt.plot(generations, best_scores, label='Best Score')
         plt.plot(generations, mean_scores, label='Mean Score')
-        n = len(generations) // 10  # Display every nth point
+        n = max(len(generations) // 10, 1)  # Display every nth point
         plt.errorbar(generations[::n], mean_scores[::n], yerr=std_scores[::n], fmt='o', label='Std Score', color="C3")
         plt.errorbar(generations[-1], mean_scores[-1], yerr=std_scores[-1], fmt='o', color="C3")
         plt.xlabel('Generation')
@@ -156,7 +156,7 @@ class Analysis:
     def _plot_method_comparison(method_scores):
         plt.figure(figsize=(10, 5))
         for method_name, scores in method_scores:
-            plt.plot(range(1, len(scores) + 1), scores, label=method_name)
+            plt.plot(range(len(scores)), scores, label=method_name)
         plt.xlabel('Generation')
         plt.ylabel('Mean Score')
         plt.title('Scores mean comparison')
@@ -168,7 +168,7 @@ class Analysis:
     def _plot_pc_method_comparison(probabilities, method_final_scores):
         plt.figure(figsize=(10, 5))
         for method_name, scores in method_final_scores:
-            plt.plot(probabilities, scores, label=method_name)
+            plt.plot(probabilities, scores, marker=".", label=method_name)
         plt.xlabel('Crossover probability')
         plt.ylabel('Mean score')
         plt.title(f'Scores vs. Pc')
