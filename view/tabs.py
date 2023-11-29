@@ -21,7 +21,7 @@ class OptimizationTab(Frame):
         super().__init__(master, *args, **kwargs)
         self.controller = controller
 
-        self._vehicles_count_input = IntInput(self, "Vehicles:", 0, 99, Model.DEFAULT_VEHICLES_COUNT)
+        self._vehicle_count_input = IntInput(self, "Vehicles:", 0, 99, Model.DEFAULT_VEHICLE_COUNT)
         row1_frame, row2_frame, row3_frame = Frame(self), Frame(self), Frame(self)
         self._size_input = IntInput(row1_frame, "Population:", 0, 9999, Model.DEFAULT_POP_SIZE)
         self._pc_input = FloatInput(row1_frame, "PC:", 0., 1., Model.DEFAULT_PC, width=4)
@@ -61,7 +61,7 @@ class OptimizationTab(Frame):
 
     def generate_routes(self):
         self.controller.generate_routes(
-            self._vehicles_count_input.get_value(),
+            self._vehicle_count_input.get_value(),
             self._size_input.get_value(),
             self._generations_input.get_value(),
             self._pc_input.get_value(),
@@ -106,13 +106,13 @@ class EnvironmentTab(Frame):
         random_frame = ttk.LabelFrame(self, text="Random customers")
         self._delivery_type = ttk.Combobox(random_frame, state="readonly", values=[self.ONE_TO_ALL, self.ONE_TO_ONE])
         self._delivery_type.set(self.ONE_TO_ALL)
-        self._customer_count_input = IntInput(random_frame, "Customers:", 0, 999, Model.DEFAULT_CUSTOMERS_COUNT)
+        self._customer_count_input = IntInput(random_frame, "Customers:", 0, 999, Model.DEFAULT_CUSTOMER_COUNT)
         Button(random_frame, text="Generate", command=self.generate_customers)
 
         along_lines_frame = ttk.LabelFrame(self, text="Customers along the lines")
         lines_input_row_frame = Frame(along_lines_frame)
         self._per_line_input = IntInput(lines_input_row_frame, "Per line:", 0, 99, Model.DEFAULT_PER_LINE_COUNT)
-        self._lines_count_input = IntInput(lines_input_row_frame, "Lines:", 0, 99, Model.DEFAULT_LINES_COUNT)
+        self._line_count_input = IntInput(lines_input_row_frame, "Lines:", 0, 99, Model.DEFAULT_LINE_COUNT)
         Button(along_lines_frame, text="Generate", command=self.generate_customers_along_the_lines)
 
         pack_children_of(self)
@@ -128,7 +128,7 @@ class EnvironmentTab(Frame):
 
     def generate_customers_along_the_lines(self):
         self.controller.generate_customers_along_the_lines(self._per_line_input.get_value(),
-                                                           self._lines_count_input.get_value())
+                                                           self._line_count_input.get_value())
 
     def update_depot_position(self):
         self.controller.update_depot_position(self._depot_x_input.get_value(), self._depot_y_input.get_value())

@@ -5,8 +5,8 @@ from genetic_algorithm.ga import *
 class GAAlt(GA):
 
     def generate_population(self, size):
-        pop1 = np.array([np.random.permutation(self.customers_count) + 1 for _ in range(size)])
-        pop2 = np.array([self.create_array_with_sum(self.customers_count, self.vehicles_count) for _ in range(size)])
+        pop1 = np.array([np.random.permutation(self.customer_count) + 1 for _ in range(size)])
+        pop2 = np.array([self.create_array_with_sum(self.customer_count, self.vehicle_count) for _ in range(size)])
 
         return pop1, pop2
 

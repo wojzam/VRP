@@ -6,10 +6,10 @@ from genetic_algorithm.strategies import order_crossover
 
 
 class Model:
-    DEFAULT_CUSTOMERS_COUNT = 6
+    DEFAULT_CUSTOMER_COUNT = 6
     DEFAULT_PER_LINE_COUNT = 4
-    DEFAULT_LINES_COUNT = 4
-    DEFAULT_VEHICLES_COUNT = 3
+    DEFAULT_LINE_COUNT = 4
+    DEFAULT_VEHICLE_COUNT = 3
     DEFAULT_GENERATIONS = 100
     DEFAULT_POP_SIZE = 60
     DEFAULT_PC = 0.7
@@ -26,13 +26,13 @@ class Model:
     def __init__(self):
         self.result_history = ResultHistory()
 
-    def generate_customers(self, count=DEFAULT_CUSTOMERS_COUNT, customer_class=Customer):
+    def generate_customers(self, count=DEFAULT_CUSTOMER_COUNT, customer_class=Customer):
         self.customers = [customer_class.random() for _ in range(count)]
         self.update_targets()
 
     def generate_customers_along_the_lines(self, per_line_count=DEFAULT_PER_LINE_COUNT,
-                                           lines_count=DEFAULT_LINES_COUNT, scale=100):
-        angles = 2 * np.pi * np.arange(lines_count) / lines_count
+                                           line_count=DEFAULT_LINE_COUNT, scale=100):
+        angles = 2 * np.pi * np.arange(line_count) / line_count
         cos_values, sin_values = np.cos(angles), np.sin(angles)
 
         alphas = scale * (np.arange(per_line_count) + 1) / per_line_count
@@ -63,7 +63,7 @@ class Model:
                 self.distance_matrix[i, j] = target1.distance(target2)
 
     def generate_routes(self,
-                        vehicles_count=DEFAULT_VEHICLES_COUNT,
+                        vehicle_count=DEFAULT_VEHICLE_COUNT,
                         size=DEFAULT_POP_SIZE,
                         generations=DEFAULT_GENERATIONS,
                         pc=DEFAULT_PC,
@@ -74,7 +74,7 @@ class Model:
                         output=True,
                         show_plot=True):
         try:
-            ga = GA(len(self.customers), vehicles_count, distance_factor, time_factor, self.calculate_total_distance)
+            ga = GA(len(self.customers), vehicle_count, distance_factor, time_factor, self.calculate_total_distance)
             start_time = measure_time()
             solution, distance, time, score, best_scores_history = ga.evolve(size, generations, pc, pm,
                                                                              crossover_method, show_plot)

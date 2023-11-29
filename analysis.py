@@ -14,13 +14,13 @@ class Analysis:
                              partially_mapped_crossover, cycle_crossover, edge_recombination_crossover]
     PC_IMPACT_SUBDIRECTORY = "pc_impact"
 
-    def __init__(self, customer_count=15, vehicles_count=3, results_directory=None):
+    def __init__(self, customer_count=15, vehicle_count=3, results_directory=None):
         self.model = Model()
         self.customer_count = customer_count
-        self.vehicles_count = vehicles_count
+        self.vehicle_count = vehicle_count
         self.results_directory = results_directory
         if results_directory is None:
-            self.results_directory = f"analysis_results_cus{customer_count}_veh{vehicles_count}"
+            self.results_directory = f"analysis_results_cus{customer_count}_veh{vehicle_count}"
 
     def analyse_crossovers(self, crossover_methods, iterations=TEST_ITERATIONS, generations=GENERATIONS, **kwargs):
         self._generate_problem()
@@ -80,7 +80,7 @@ class Analysis:
 
         for i in range(iterations):
             np.random.seed(i)
-            self.model.generate_routes(output=output, show_plot=output, vehicles_count=self.vehicles_count, **kwargs)
+            self.model.generate_routes(output=output, show_plot=output, vehicle_count=self.vehicle_count, **kwargs)
             results.append(self.model.result)
 
         return results
@@ -196,7 +196,7 @@ def pretty_name(crossover_method):
 
 
 if __name__ == "__main__":
-    analysis = Analysis(customer_count=15, vehicles_count=3)
+    analysis = Analysis(customer_count=15, vehicle_count=3)
     analyzed_crossover_methods = [order_crossover, order_based_crossover, partially_mapped_crossover, cycle_crossover]
     file_names = [method.__name__ for method in analyzed_crossover_methods]
 

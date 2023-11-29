@@ -4,9 +4,9 @@ from genetic_algorithm.utils import *
 
 class GA:
 
-    def __init__(self, customers_count, vehicles_count, distance_factor, time_factor, calculate_distance_func):
-        self.customers_count = customers_count
-        self.vehicles_count = vehicles_count
+    def __init__(self, customer_count, vehicle_count, distance_factor, time_factor, calculate_distance_func):
+        self.customer_count = customer_count
+        self.vehicle_count = vehicle_count
         self.distance_factor = distance_factor
         self.time_factor = time_factor
         self.calculate_distance_func = calculate_distance_func
@@ -53,11 +53,10 @@ class GA:
         return best_solution, best_distance, best_time, best_score, global_best_scores
 
     def generate_population(self, size):
-        return np.array(
-            [np.random.permutation(self.customers_count + self.vehicles_count - 1) + 1 for _ in range(size)])
+        return np.array([np.random.permutation(self.customer_count + self.vehicle_count - 1) + 1 for _ in range(size)])
 
     def decode_individual(self, row):
-        highest_customer_index = len(row) - self.vehicles_count + 1
+        highest_customer_index = len(row) - self.vehicle_count + 1
         solution = []
         routes = []
         for value in row:
@@ -118,7 +117,7 @@ class GA:
         return new_pop
 
     def validate(self):
-        if self.customers_count <= 0 or self.vehicles_count <= 0 or (
+        if self.customer_count <= 0 or self.vehicle_count <= 0 or (
                 self.distance_factor == 0 and self.time_factor == 0) or not self.calculate_distance_func:
             raise ValueError("Incorrect parameters")
 
