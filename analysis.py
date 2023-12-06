@@ -13,6 +13,7 @@ class Analysis:
     ALL_CROSSOVER_METHODS = [order_crossover, order_based_crossover, position_based_crossover,
                              partially_mapped_crossover, cycle_crossover, edge_recombination_crossover]
     PC_IMPACT_SUBDIRECTORY = "pc_impact"
+    problem_seed = 1
 
     def __init__(self, customer_count=15, vehicle_count=3, results_directory=None):
         self.model = Model()
@@ -73,6 +74,7 @@ class Analysis:
         self._plot_pc_method_comparison(probabilities, method_final_scores)
 
     def _generate_problem(self):
+        np.random.seed(self.problem_seed)
         self.model.generate_customers(self.customer_count)
 
     def _get_results(self, iterations, output=False, **kwargs):
