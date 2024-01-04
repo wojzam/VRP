@@ -12,7 +12,7 @@ class GA:
         self.calculate_distance_func = calculate_distance_func
         self.validate()
 
-    def evolve(self, size, generations, pc, pm, crossover_method=order_crossover, show_plot=True):
+    def evolve(self, size, generations, pc, pm, crossover_method=order_crossover, enable_2_opt=False, show_plot=True):
         self.validate_evolve(size, generations)
         pop = self.generate_population(size)
         result, solutions = self.evaluate(pop)
@@ -32,6 +32,7 @@ class GA:
             pop = self.crossover(pop, crossover_method, pc)
             pop = self.mutation(pop, pm)
 
+            pop = self.two_opt_for_population(pop) if enable_2_opt else pop
             result, solutions = self.evaluate(pop)
             scores = result[:, 0]
             min_index = np.argmin(scores)
@@ -56,11 +57,10 @@ class GA:
         return np.array([np.random.permutation(self.customer_count + self.vehicle_count - 1) + 1 for _ in range(size)])
 
     def decode_individual(self, row):
-        highest_customer_index = len(row) - self.vehicle_count + 1
         solution = []
         routes = []
         for value in row:
-            if value > highest_customer_index:
+            if value > self.customer_count:
                 solution.append(routes)
                 routes = []
             else:
@@ -69,10 +69,19 @@ class GA:
 
         return [[0] + route + [0] if route else [0] for route in solution]
 
-    def evaluate(self, pop):
+    def encode_solution(self, solution):
+        route_separator = self.customer_count + 1
+        individual = []
+        for route in solution:
+            individual += [x for x in route if x != 0] + [route_separator]
+            route_separator += 1
+
+        return np.array(individual[:-1])
+
+    def evaluate(self, population):
         evaluated_pop = []
         decoded = []
-        for row in pop:
+        for row in population:
             solution = self.decode_individual(row)
             distances = [self.calculate_distance_func(np.array(vehicle)) for vehicle in solution]
 
@@ -115,6 +124,25 @@ class GA:
                 if np.random.uniform() < p:
                     shuffle_mutation(new_pop[i])
         return new_pop
+
+    def two_opt_for_population(self, population):
+        return np.array([self.encode_solution([self.two_opt(route) for route in self.decode_individual(row)])
+                         for row in population])
+
+    def two_opt(self, route):
+        best_distance = self.calculate_distance_func(np.array(route))
+        improved = True
+        while improved:
+            improved = False
+            for i in range(1, len(route) - 2):
+                for j in range(i + 1, len(route) - 1):
+                    new_route = route[:i] + route[i:j + 1][::-1] + route[j + 1:]
+                    new_distance = self.calculate_distance_func(np.array(new_route))
+                    if new_distance < best_distance:
+                        route = new_route
+                        best_distance = new_distance
+                        improved = True
+        return route
 
     def validate(self):
         if self.customer_count <= 0 or self.vehicle_count <= 0 or (

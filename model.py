@@ -71,13 +71,14 @@ class Model:
                         distance_factor=DEFAULT_DISTANCE_FACTOR,
                         time_factor=DEFAULT_TIME_FACTOR,
                         crossover_method=DEFAULT_CROSSOVER_METHOD,
+                        enable_2_opt=False,
                         output=True,
                         show_plot=True):
         try:
             ga = GA(len(self.customers), vehicle_count, distance_factor, time_factor, self.calculate_total_distance)
             start_time = measure_time()
             solution, distance, time, score, best_scores_history = ga.evolve(size, generations, pc, pm,
-                                                                             crossover_method, show_plot)
+                                                                             crossover_method, enable_2_opt, show_plot)
             exec_time = measure_time() - start_time
 
             self.result_history.add(

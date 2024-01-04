@@ -33,6 +33,8 @@ class OptimizationTab(Frame):
         self._crossover_method = ttk.Combobox(self, state="readonly",
                                               values=[self.OX1, self.OX2, self.POS, self.CX, self.PMX, self.ERX])
         self._crossover_method.set(self.OX1)
+        self._enable_2_opt = BooleanVar(value=False)
+        Checkbutton(self, text="Enable 2-opt", variable=self._enable_2_opt)
         Button(self, text="Run", command=self.generate_routes)
 
         self.result_frame = ttk.LabelFrame(self, text="Result")
@@ -68,7 +70,8 @@ class OptimizationTab(Frame):
             self._pm_input.get_value(),
             self._distance_factor_input.get_value(),
             self._time_factor_input.get_value(),
-            self.get_crossover_method()
+            self.get_crossover_method(),
+            self._enable_2_opt.get()
         )
 
     def get_crossover_method(self):
