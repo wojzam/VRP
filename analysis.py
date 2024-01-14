@@ -1,4 +1,5 @@
 import os
+from timeit import timeit
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -93,6 +94,21 @@ class Analysis:
         return np.min(scores), np.mean(scores), np.std(scores)
 
     @staticmethod
+    def analyse_execution_time(individual_size=100, iterations=1000):
+        method_exec_time = []
+
+        for crossover in Analysis.ALL_CROSSOVER_METHODS:
+            def test_method():
+                p1, p2 = np.random.permutation(individual_size), np.random.permutation(individual_size)
+                crossover(p1, p2)
+
+            execution_time = timeit(test_method, number=iterations)
+            method_exec_time.append((crossover.__name__, execution_time))
+            print(f"{pretty_name(crossover)}: {execution_time}")
+
+        Analysis._plot_execution_time_comparison(method_exec_time)
+
+    @staticmethod
     def analyse_crossover_impact_on_offsprings(population_size=100, iterations=1000):
         def impact(arr1, arr2):
             return 1.0 - np.mean(arr1 == arr2)
@@ -178,6 +194,18 @@ class Analysis:
         plt.grid(True)
         plt.show()
 
+    @staticmethod
+    def _plot_execution_time_comparison(method_exec_time):
+        plt.figure(figsize=(10, 5))
+        for method_name, execution_time in method_exec_time:
+            plt.bar(method_name, execution_time)
+        plt.xlabel('Crossover Methods')
+        plt.ylabel('Execution Time (seconds)')
+        plt.title('Execution Time of Crossover Methods')
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        plt.show()
+
     def _save_to_file(self, dictionary, file_name, subdirectory=""):
         directory = os.path.join(self.results_directory, subdirectory)
         os.makedirs(directory, exist_ok=True)
@@ -203,7 +231,7 @@ if __name__ == "__main__":
     file_names = [method.__name__ for method in analyzed_crossover_methods]
 
     # Example 1
-    # analysis.analyse_crossovers(analyzed_crossover_methods, generations=500)
+    # analysis.analyse_crossovers(analyzed_crossover_methods, generations=500, pc=0.5, enable_2_opt=False)
     # analysis.plot_method_comparison_from_files(file_names)
 
     # Example 2
@@ -212,3 +240,6 @@ if __name__ == "__main__":
 
     # Example 3
     # analysis.analyse_crossover_impact_on_offsprings()
+
+    # Example 4
+    # analysis.analyse_execution_time(10, 10000)
